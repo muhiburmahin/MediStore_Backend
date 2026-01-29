@@ -30,6 +30,8 @@ export const auth = betterAuth({
     },
     emailAndPassword: {
         enabled: true,
+        autoSignIn: false,
+        requireEmailVerification: true
     },
     //trustedOrigins: ["http://localhost:5000"]
 });
