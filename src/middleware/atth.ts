@@ -2,20 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import { Role } from "../../generated/prisma/enums";
 import { auth as betterAuth } from "../lib/auth";
 
-declare global {
-    namespace Express {
-        interface Request {
-            user?: {
-                id: string;
-                name: string;
-                email: string;
-                role: Role;
-                emailVerified: boolean;
-            }
-        }
-    }
-}
-
 const auth = (...roles: Role[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {

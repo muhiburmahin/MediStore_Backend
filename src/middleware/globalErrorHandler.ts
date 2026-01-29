@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Prisma } from "../../generated/prisma/client"
+
 function globalErrorHandler(
     err: any,
     req: Request,
@@ -7,22 +8,22 @@ function globalErrorHandler(
     next: NextFunction,
 ) {
     let statusCode = err.statusCode || 500;
-    let message = err.message || "Internal Server Error";
+    let message = err.message || "Internal server error";
     let errorSources: any = err;
 
     //Prisma validation error 
     if (err instanceof Prisma.PrismaClientValidationError) {
         statusCode = 400;
-        message = "Invalid or missing fields in the request body";
+        message = "Invalid request";
     }
 
-    //Prisma Known request errors 
+    //Prisma known request errors 
     else if (err instanceof Prisma.PrismaClientKnownRequestError) {
         switch (err.code) {
             case "P2002":
                 statusCode = 409;
                 const field = (err.meta?.target as string[])?.join(", ") || "field";
-                message = `Duplicate entry:this ${field} already exists.`;
+                message = `Duplicate . this ${field} already exists.`;
                 break;
             case "P2003":
                 statusCode = 400;
