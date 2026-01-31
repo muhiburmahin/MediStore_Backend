@@ -12,7 +12,6 @@ router.get("/:id", auth(Role.CUSTOMER, Role.SELLER, Role.ADMIN), orderController
 
 router.post("/", auth(Role.CUSTOMER, Role.SELLER), orderController.createOrder);
 
-
-router.patch("/:id/status", auth(Role.SELLER, Role.ADMIN), orderController.updateStatus);
+router.patch("/update-status/:id", auth(Role.SELLER, Role.ADMIN), orderController.updateStatus);
 
 export const orderRoutes = router;
