@@ -62,7 +62,51 @@ const getMedicineReviews = async (medicineId: string) => {
     });
 };
 
+export const getSingleMedicineWithAverageRating = async (id: string) => {
+    const medicine = await prisma.medicine.findUnique({
+        where: {
+            id
+        },
+        include: {
+            reviews: {
+                include: {
+                    user: {
+                        select: {
+                            name: true,
+                            image: true
+                        }
+                    }
+                }
+            },
+            _count: {
+                select: {
+                    reviews: true
+                }
+            }
+        }
+    });
+
+    if (!medicine) return null;
+
+    // Average Rating
+    const aggregate = await prisma.review.aggregate({
+        where: { medicineId: id },
+        _avg: {
+            rating: true
+        }
+    });
+
+    return {
+        ...medicine,
+        averageRating: aggregate._avg.rating || 0,
+        totalReviews: medicine._count.reviews
+    };
+};
+
+
+
 export const reviewService = {
     createReview,
-    getMedicineReviews
+    getMedicineReviews,
+    getSingleMedicineWithAverageRating
 };
