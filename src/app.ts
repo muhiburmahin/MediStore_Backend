@@ -5,6 +5,7 @@ import { auth } from "./lib/auth";
 import cors from "cors";
 import { medicineRoute } from "./modules/medicine/medicien.route";
 import { orderRoutes } from "./modules/order/order.route";
+import { analyticsRoutes } from "./modules/analytics/analytics.route";
 
 
 const app = express();
@@ -27,6 +28,8 @@ app.use("/api/medicine", medicineRoute);
 
 app.use("/api/orders", orderRoutes);
 app.use("/api/seller/orders", orderRoutes)
+
+app.use("/api/analytics", analyticsRoutes);
 
 
 export default app;

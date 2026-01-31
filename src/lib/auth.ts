@@ -6,57 +6,57 @@ import nodemailer from 'nodemailer';
 // If your Prisma file is located elsewhere, you can change the path
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false, // Use true for port 465, false for port 587
-    auth: {
-        user: process.env.APP_USER,
-        pass: process.env.APP_PASS,
-    },
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // Use true for port 465, false for port 587
+  auth: {
+    user: process.env.APP_USER,
+    pass: process.env.APP_PASS,
+  },
 });
 
 export const auth = betterAuth({
-    database: prismaAdapter(prisma, {
-        provider: "postgresql", // or "mysql", "postgresql", ...etc
-    }),
-    user: {
+  database: prismaAdapter(prisma, {
+    provider: "postgresql", // or "mysql", "postgresql", ...etc
+  }),
+  user: {
 
-        additionalFields: {
-            role: {
-                type: "string",
-                defaultValue: Role.CUSTOMER,
-                required: true,
-                allowedValues: [Role.CUSTOMER, Role.SELLER, Role.ADMIN],
-            },
-            status: {
-                type: "string",
-                defaultValue: UserStatus.ACTIVE,
-                required: true,
-                allowedValues: [UserStatus.ACTIVE, UserStatus.BANNED],
-            }, phone: {
-                type: "string",
-                required: false
-            }
-        },
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: Role.CUSTOMER,
+        required: true,
+        allowedValues: [Role.CUSTOMER, Role.SELLER, Role.ADMIN],
+      },
+      status: {
+        type: "string",
+        defaultValue: UserStatus.ACTIVE,
+        required: true,
+        allowedValues: [UserStatus.ACTIVE, UserStatus.BANNED],
+      }, phone: {
+        type: "string",
+        required: false
+      }
     },
-    emailAndPassword: {
-        enabled: true,
-        autoSignIn: false,
-        requireEmailVerification: true
-    },
-    emailVerification: {
-        sendOnSignIn: true,
-        autoSignInAfterVerification: true,
-        sendVerificationEmail: async ({ user, url, token }, request) => {
-            try {
-                const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+  },
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: false,
+    requireEmailVerification: true
+  },
+  emailVerification: {
+    sendOnSignIn: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url, token }, request) => {
+      try {
+        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
 
-                const info = await transporter.sendMail({
-                    from: '"MediStore" <your-email@gmail.com>',
-                    to: user.email,
-                    subject: "Verify Your Email Address ✔",
-                    text: `Please verify your email using this link: ${verificationUrl}`,
-                    html: `
+        const info = await transporter.sendMail({
+          from: '"MediStore" <your-email@gmail.com>',
+          to: user.email,
+          subject: "Verify Your Email Address ✔",
+          text: `Please verify your email using this link: ${verificationUrl}`,
+          html: `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -137,21 +137,21 @@ export const auth = betterAuth({
 </body>
 </html>
   `,
-                });
-            }
-            catch (err) {
-                console.error(err)
-                throw err;
-            }
+        });
+      }
+      catch (err) {
+        console.error(err)
+        throw err;
+      }
 
-            // console.log("Message sent:", info.messageId);
-        },
+      // console.log("Message sent:", info.messageId);
     },
-    socialProviders: {
-        google: {
-            prompt: "select_account",
-            clientId: process.env.GOOGLE_CLIENT_ID as string,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-        },
-    }
+  },
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+  }
 })
