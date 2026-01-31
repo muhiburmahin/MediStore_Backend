@@ -58,13 +58,20 @@ const getMedicineById = async (id: string) => {
     });
 };
 
-const updateMedicineById = async (id: string, sellerId: string, payload: any) => {
-    await prisma.medicine.findFirstOrThrow({
+const updateMedicineById = async (id: string, userId: string, userRole: string, payload: any) => {
+    const medicine = await prisma.medicine.findFirstOrThrow({
         where: {
-            id,
-            sellerId
+            id
         }
     });
+    if (!medicine) throw new AppError("Medicine not found", 404);
+
+    if (userRole !== 'ADMIN' && medicine.sellerId !== userId) {
+        throw new AppError("Unauthorized! You can only update your own medicines", 403);
+    }
+
+    if (payload.price) payload.price = Number(payload.price);
+    if (payload.stock) payload.stock = Number(payload.stock);
 
     return await prisma.medicine.update({
         where: {
@@ -74,24 +81,29 @@ const updateMedicineById = async (id: string, sellerId: string, payload: any) =>
     });
 };
 
-const deleteMedicineById = async (id: string, sellerId: string) => {
-
-    await prisma.medicine.findFirstOrThrow({
-        where: { id, sellerId }
-    });
+const deleteMedicineById = async (id: string, userId: string, userRole: string) => {
 
     const medicine = await prisma.medicine.findUnique({
-        where: { id },
+        where: {
+            id
+        },
     });
 
     if (!medicine) {
         throw new AppError("Medicine not found", 404);
     }
 
-    await prisma.medicine.delete({
-        where: { id },
+    if (userRole !== 'ADMIN' && medicine.sellerId !== userId) {
+        throw new AppError("You can only delete your own medicines", 403);
+    }
+
+    return await prisma.medicine.delete({
+        where: {
+            id
+        },
     });
 };
+
 
 export const medicineService = {
     createMedicine,

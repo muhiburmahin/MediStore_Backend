@@ -25,8 +25,10 @@ app.get("/", (request: Request, respons: Response) => {
 });
 
 
-app.use("/api/category", categoryRoute);
-app.use("/api/medicine", medicineRoute);
+app.use("/api/categories", categoryRoute);
+
+app.use("/api/medicines", medicineRoute);
+app.use("/api/seller/medicines", medicineRoute);
 
 app.use("/api/orders", orderRoutes);
 app.use("/api/seller/orders", orderRoutes)

@@ -54,22 +54,30 @@ const getMedicineById = async (req: Request, res: Response, next: NextFunction) 
 
 const updateMedicineById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await medicineService.updateMedicineById(req.params.id as string, req.user!.id, req.body);
+        const medicineId = req.params.id;
+        const userId = req.user!.id;
+        const userRole = req.user!.role;
+        const result = await medicineService.updateMedicineById(medicineId as string, userId, userRole, req.body);
         res.status(200).json({
             success: true,
             message: "Medicine updated!",
             data: result
         });
-    } catch (error) {
+    }
+    catch (error) {
         next(error);
     }
 };
 
 
-
 const deleteMedicineById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        await medicineService.deleteMedicineById(req.params.id as string, req.user!.id);
+        const medicineId = req.params.id;
+        const userId = req.user!.id;
+        const userRole = req.user!.role;
+
+        await medicineService.deleteMedicineById(medicineId as string, userId, userRole);
+
         res.status(200).json({
             success: true,
             message: "Medicine deleted successfully!"

@@ -20,7 +20,7 @@ const getAllCategories = async () => {
     const [categories, totalCount] = await Promise.all([
         prisma.category.findMany({
             include: {
-                medicines: true, // ক্যাটাগরির ভেতরের ঔষধগুলো দেখাবে
+                medicines: true,
             },
             orderBy: {
                 createdAt: 'desc',
@@ -52,7 +52,9 @@ const deleteCategoryById = async (id: string) => {
 };
 
 export const categoryService = {
-    createCategory, getAllCategories, deleteCategoryById
+    createCategory,
+    getAllCategories,
+    deleteCategoryById
 }
 
 
