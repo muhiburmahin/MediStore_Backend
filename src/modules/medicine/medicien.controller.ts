@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { medicineService } from "./medicien.service";
 import { AppError } from "../../middleware/appError";
+import { calculatePagination } from "../../helpers/paginationHelper"
 
 const createMedicine = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,17 +24,30 @@ const createMedicine = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-
-const getAllMedicines = async (req: Request, res: Response, next: NextFunction) => {
+const getAllMedicines = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
     try {
-        const result = await medicineService.getAllMedicines();
+        const search = req.query.search as string | undefined;
+        const { page, limit, skip, sortBy, sortOrder } = calculatePagination(
+            req.query,
+        );
+        const medicines = await medicineService.getAllMedicines({
+            search,
+            page,
+            limit,
+            skip,
+            sortBy,
+            sortOrder,
+        });
         res.status(200).json({
             success: true,
-            message: "Medicines get successfully!",
-            data: result
+            message: "Medicines retrieved successfully",
+            data: medicines,
         });
-    }
-    catch (error) {
+    } catch (error: any) {
         next(error);
     }
 };
@@ -95,3 +109,6 @@ export const medicineController = {
     updateMedicineById,
     deleteMedicineById,
 };
+
+
+
