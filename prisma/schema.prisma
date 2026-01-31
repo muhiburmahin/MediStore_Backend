@@ -54,6 +54,7 @@ model order {
 
   status          orderStatus @default(PLACED)
   shippingAddress String
+  phone           String?
   totalAmount     Float
 
   items orderItem[]

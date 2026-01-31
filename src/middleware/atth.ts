@@ -12,7 +12,7 @@ const auth = (...roles: Role[]) => {
             if (!session) {
                 return res.status(401).json({
                     success: false,
-                    message: "Unauthorized Access!"
+                    message: "Unauthorized Access"
                 });
             }
 

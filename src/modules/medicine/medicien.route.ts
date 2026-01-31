@@ -2,17 +2,17 @@ import express from "express";
 import auth from "../../middleware/atth";
 import { Role } from "../../../generated/prisma/enums";
 import { medicineController } from "./medicien.controller";
-const route = express.Router();
+const router = express.Router();
 
-route.get("/", medicineController.getAllMedicines);
-route.get("/:id", medicineController.getMedicineById);
+router.get("/", medicineController.getAllMedicines);
+router.get("/:id", medicineController.getMedicineById);
 
-route.post("/", auth(Role.SELLER), medicineController.createMedicine);
-
-
-route.patch("/:id", auth(Role.SELLER), medicineController.updateMedicineById);
-
-route.delete("/:id", auth(Role.SELLER), medicineController.deleteMedicineById);
+router.post("/", auth(Role.SELLER, Role.ADMIN), medicineController.createMedicine);
 
 
-export const medicineRoute = route;
+router.patch("/:id", auth(Role.SELLER, Role.ADMIN), medicineController.updateMedicineById);
+
+router.delete("/:id", auth(Role.SELLER, Role.ADMIN), medicineController.deleteMedicineById);
+
+
+export const medicineRoute = router;
