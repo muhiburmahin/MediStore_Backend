@@ -91,23 +91,30 @@ const getMyOrders = async (customerId: string) => {
 
 //only seller
 const getSellerOrders = async (sellerId: string) => {
-    return await prisma.orderItem.findMany({
+    return await prisma.order.findMany({
         where: {
-            medicine: {
-                sellerId: sellerId
+            items: {
+                some: {
+                    medicine: {
+                        sellerId: sellerId
+                    }
+                }
             }
         },
         include: {
-            order: {
+            items: {
                 include: {
-                    customer: true
+                    medicine: true
                 }
             },
-            medicine: true
+            customer: {
+                select: {
+                    name: true,
+                    email: true
+                }
+            }
         },
-        orderBy: {
-            createdAt: 'desc'
-        }
+        orderBy: { createdAt: 'desc' }
     });
 };
 
@@ -139,16 +146,27 @@ const getSingleOrderById = async (orderId: string) => {
 };
 
 //update order
-const updateOrderStatus = async (orderId: string, status: string) => {
-    const isExist = await prisma.order.findUnique({
+const updateOrderStatus = async (orderId: string, status: string, userId: string, userRole: string) => {
+    const order = await prisma.order.findUnique({
         where: {
             id: orderId
+        },
+        include: {
+            items: {
+                include: {
+                    medicine: true
+                }
+            }
         }
     });
 
-    if (!isExist) {
-        throw new AppError("Order not found", 404);
+    if (!order) throw new AppError("Order not found", 404);
+    const isOwner = order.items.some(item => item.medicine.sellerId === userId);
+
+    if (userRole !== 'ADMIN' && !isOwner) {
+        throw new AppError("You are not update this order status", 403);
     }
+
     return await prisma.order.update({
         where: {
             id: orderId

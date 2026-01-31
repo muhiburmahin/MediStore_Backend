@@ -1,23 +1,21 @@
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../middleware/appError";
 
 const createReview = async (userId: string, payload: any) => {
     const { medicineId, rating, comment } = payload;
-    const hasOrdered = await prisma.order.findFirst({
+
+    const existingReview = await prisma.review.findFirst({
         where: {
-            customerId: userId,
-            items: {
-                some: {
-                    medicineId
-                }
-            }
+            userId,
+            medicineId
         }
     });
 
-    if (!hasOrdered) {
-        throw new Error("You cannot review this medicine, because you haven't ordered it yet.");
+    if (existingReview) {
+        throw new AppError("You have already reviewed for this medicine.", 400);
     }
 
-    const isDelivered = await prisma.order.findFirst({
+    const deliveredOrder = await prisma.order.findFirst({
         where: {
             customerId: userId,
             status: "DELIVERED",
@@ -29,8 +27,8 @@ const createReview = async (userId: string, payload: any) => {
         }
     });
 
-    if (!isDelivered) {
-        throw new Error("You can only provide a review after delivered.");
+    if (!deliveredOrder) {
+        throw new AppError("You can only review after the product is delivered.", 403);
     }
 
     return await prisma.review.create({

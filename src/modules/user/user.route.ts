@@ -10,7 +10,10 @@ router.get("/user/me", auth(Role.CUSTOMER, Role.ADMIN, Role.SELLER), userControl
 //Get all users
 router.get("/admin/users", auth(Role.ADMIN), userController.getAllUsers);
 
-// Only Admin can update Profile
+//To update your profile yourself
+router.patch("/user/update/:id", auth(Role.CUSTOMER, Role.SELLER, Role.ADMIN), userController.updateProfile);
+
+// Only admin access will be available (to control others)
 router.patch("/admin/users/:id", auth(Role.ADMIN), userController.updateProfile);
 
 export const userRoutes = router;

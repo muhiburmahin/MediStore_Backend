@@ -1,4 +1,5 @@
 import { prisma } from "../../lib/prisma";
+import { AppError } from "../../middleware/appError";
 
 const getMyProfile = async (userId: string) => {
     return await prisma.user.findUnique({
@@ -43,7 +44,7 @@ const updateProfile = async (userId: string, payload: any) => {
     });
 
     if (!isUserExist) {
-        throw new Error("User not found!");
+        throw new AppError("User not found!", 404);
     }
 
     // update 

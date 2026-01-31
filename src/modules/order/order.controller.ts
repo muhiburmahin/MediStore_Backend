@@ -23,11 +23,13 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
 const getOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.user?.id;
-        const path = req.baseUrl;
+        const userRole = req.user!.role;
+        const path = req.originalUrl;
+
         if (!userId) throw new AppError("Unauthorized", 401);
         let result;
 
-        if (path.includes("seller")) {
+        if (path.includes("seller") && userRole === "SELLER") {
             result = await orderService.getSellerOrders(userId!);
         }
         else {
@@ -67,11 +69,14 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
     try {
         const { id } = req.params;
         const { status } = req.body;
-        const result = await orderService.updateOrderStatus(id as string, status);
+        const userId = req.user!.id;
+        const userRole = req.user!.role;
+
+        const result = await orderService.updateOrderStatus(id as string, status, userId, userRole);
 
         res.status(200).json({
             success: true,
-            message: "Order status update successfully!",
+            message: `Order status updated to successfully!`,
             data: result
         });
     }

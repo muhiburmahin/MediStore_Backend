@@ -14,4 +14,4 @@ router.post("/", auth(Role.CUSTOMER, Role.SELLER), orderController.createOrder);
 
 router.patch("/update-status/:id", auth(Role.SELLER, Role.ADMIN), orderController.updateStatus);
 
-export const orderRoutes = router;
+export const orderRoutes = router; 
