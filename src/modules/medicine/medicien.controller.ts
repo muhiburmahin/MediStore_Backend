@@ -2,6 +2,17 @@ import { NextFunction, Request, Response } from "express";
 import { medicineService } from "./medicien.service";
 import { AppError } from "../../middleware/appError";
 import { calculatePagination } from "../../helpers/paginationHelper"
+import { ParsedQs } from "qs";
+
+function pick(query: ParsedQs, fields: string[]): Record<string, any> {
+    const result: Record<string, any> = {};
+    fields.forEach(field => {
+        if (query[field] !== undefined) {
+            result[field] = query[field];
+        }
+    });
+    return result;
+}
 
 const createMedicine = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -24,30 +35,23 @@ const createMedicine = async (req: Request, res: Response, next: NextFunction) =
     }
 };
 
-const getAllMedicines = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-) => {
+const getAllMedicines = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const search = req.query.search as string | undefined;
-        const { page, limit, skip, sortBy, sortOrder } = calculatePagination(
-            req.query,
-        );
-        const medicines = await medicineService.getAllMedicines({
-            search,
-            page,
-            limit,
-            skip,
-            sortBy,
-            sortOrder,
-        });
+        const filters = pick(req.query, ['search', 'categoryId']);
+
+        const options = pick(req.query, ['page', 'limit', 'sortBy', 'sortOrder']);
+
+        const result = await medicineService.getAllMedicines(filters, options);
+
         res.status(200).json({
             success: true,
+            statusCode: 200,
             message: "Medicines retrieved successfully",
-            data: medicines,
+            meta: result.meta,
+            data: result.data
         });
-    } catch (error: any) {
+    }
+    catch (error) {
         next(error);
     }
 };
@@ -83,7 +87,6 @@ const updateMedicineById = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
-
 const deleteMedicineById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const medicineId = req.params.id;
@@ -91,7 +94,6 @@ const deleteMedicineById = async (req: Request, res: Response, next: NextFunctio
         const userRole = req.user!.role;
 
         await medicineService.deleteMedicineById(medicineId as string, userId, userRole);
-
         res.status(200).json({
             success: true,
             message: "Medicine deleted successfully!"
@@ -109,6 +111,4 @@ export const medicineController = {
     updateMedicineById,
     deleteMedicineById,
 };
-
-
 

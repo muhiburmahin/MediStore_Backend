@@ -1,4 +1,4 @@
-type IOptions = {
+export type IOptions = {
     page?: number | string;
     limit?: number | string;
     sortBy?: string;
@@ -33,3 +33,4 @@ export const calculatePagination = (options: IOptions): PaginationResult => {
 export const paginationHelpers = {
     calculatePagination
 };
+

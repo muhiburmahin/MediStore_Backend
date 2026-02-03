@@ -177,11 +177,30 @@ const updateOrderStatus = async (orderId: string, status: string, userId: string
     });
 };
 
+const deleteOrderById = async (id: string) => {
+    const order = await prisma.order.findUnique({
+        where: {
+            id
+        },
+    });
+    if (!order) {
+        throw new AppError("Order not found", 404);
+    }
+
+    const result = await prisma.order.delete({
+        where: {
+            id
+        },
+    });
+    return result;
+};
+
 
 export const orderService = {
     createOrder,
     getMyOrders,
     getSellerOrders,
     getSingleOrderById,
-    updateOrderStatus
+    updateOrderStatus,
+    deleteOrderById
 };

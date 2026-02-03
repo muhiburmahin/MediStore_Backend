@@ -85,9 +85,24 @@ const updateStatus = async (req: Request, res: Response, next: NextFunction) => 
     }
 };
 
+const deleteOrderById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const result = await orderService.deleteOrderById(id as string);
+        res.status(200).json({
+            success: true,
+            message: "Order deleted successfully",
+            data: result,
+        });
+    } catch (error: any) {
+        next(error);
+    }
+};
+
 export const orderController = {
     createOrder,
     getOrders,
     getSingleOrderById,
-    updateStatus
+    updateStatus,
+    deleteOrderById
 };

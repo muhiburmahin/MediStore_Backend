@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import { reviewService } from "./review.service";
-import { prisma } from "../../lib/prisma";
 
 const createReview = async (req: Request, res: Response, next: NextFunction) => {
     try {

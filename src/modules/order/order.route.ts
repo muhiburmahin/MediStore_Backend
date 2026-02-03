@@ -13,5 +13,6 @@ router.get("/:id", auth(Role.CUSTOMER, Role.SELLER, Role.ADMIN), orderController
 router.post("/", auth(Role.CUSTOMER, Role.SELLER), orderController.createOrder);
 
 router.patch("/update-status/:id", auth(Role.SELLER, Role.ADMIN), orderController.updateStatus);
+router.delete("/:id", auth(Role.ADMIN, Role.SELLER), orderController.deleteOrderById);
 
 export const orderRoutes = router; 

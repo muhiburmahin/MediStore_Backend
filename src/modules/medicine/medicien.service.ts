@@ -1,5 +1,5 @@
 import { medicine, Prisma } from "../../../generated/prisma/client";
-import { paginationHelpers } from "../../helpers/paginationHelper";
+import { paginationHelpers, IOptions } from "../../helpers/paginationHelper";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
 
@@ -38,53 +38,65 @@ const createMedicine = async (payload: medicine) => {
 };
 
 //Get all midisine
-const getAllMedicines = async ({ search, page, limit, skip, sortBy, sortOrder }: {
-    search: string | undefined;
-    page: number;
-    limit: number;
-    skip: number;
-    sortBy: string;
-    sortOrder: string;
-}, paginationResult?: { page: number; limit: number; skip: number; sortBy: string; sortOrder: string; }) => {
+const getAllMedicines = async (
+    filters: { search?: string; categoryId?: string },
+    options: IOptions
+) => {
+    const { search, categoryId } = filters;
+
+    const { page, limit, skip, sortBy, sortOrder } = paginationHelpers.calculatePagination(options);
+
     const andConditions: Prisma.medicineWhereInput[] = [];
+
     if (search) {
         andConditions.push({
             OR: [
                 {
-                    name: {
-                        contains: search as string,
+                    name:
+                    {
+                        contains: search,
                         mode: "insensitive"
                     }
                 },
                 {
                     description: {
-                        contains: search as string,
-                        mode: "insensitive",
-                    },
+                        contains: search,
+                        mode: "insensitive"
+                    }
                 },
                 {
-                    manufacturer: {
-                        contains: search as string,
-                        mode: "insensitive",
-                    },
+                    manufacturer:
+                    {
+                        contains: search,
+                        mode: "insensitive"
+                    }
                 },
                 {
                     category: {
                         name: {
                             contains: search,
-                            mode: "insensitive",
-                        },
-                    },
-                },
+                            mode: "insensitive"
+                        }
+                    }
+                }
             ],
         });
     }
+
+    if (categoryId) {
+        andConditions.push({
+            categoryId: categoryId
+        });
+    }
+
+    const whereConditions: Prisma.medicineWhereInput = andConditions.length > 0
+        ? { AND: andConditions }
+        : {};
+
     const result = await prisma.medicine.findMany({
+        where: whereConditions,
         take: limit,
         skip: skip,
-        where: {
-            AND: andConditions,
-        },
         orderBy: {
             [sortBy]: sortOrder,
         },
@@ -105,19 +117,17 @@ const getAllMedicines = async ({ search, page, limit, skip, sortBy, sortOrder }:
     });
 
     const total = await prisma.medicine.count({
-        where: {
-            AND: andConditions,
-        },
+        where: whereConditions,
     });
 
     return {
-        data: result,
         meta: {
             total,
             page,
             limit,
             totalPages: Math.ceil(total / limit),
         },
+        data: result,
     };
 };
 
