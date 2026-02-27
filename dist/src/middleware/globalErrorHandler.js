@@ -1,0 +1,46 @@
+import { Prisma } from "../../generated/prisma/client";
+function globalErrorHandler(err, req, res, next) {
+    let statusCode = err.statusCode || 500;
+    let message = err.message || "Internal server error";
+    let errorSources = err;
+    //Prisma validation error 
+    if (err instanceof Prisma.PrismaClientValidationError) {
+        statusCode = 400;
+        message = "Invalid request";
+    }
+    //Prisma known request errors 
+    else if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (err.code) {
+            case "P2002":
+                statusCode = 409;
+                const field = err.meta?.target?.join(", ") || "field";
+                message = `Duplicate . this ${field} already exists.`;
+                break;
+            case "P2003":
+                statusCode = 400;
+                message = "The provided ID for a relationship is invalid.";
+                break;
+            case "P2025":
+                statusCode = 404;
+                message = "The record you are trying,but not found";
+                break;
+            default:
+                message = `Database Error: ${err.message}`;
+        }
+    }
+    //Prisma connection issues 
+    else if (err instanceof Prisma.PrismaClientInitializationError) {
+        statusCode = 503;
+        message = "Database is not found.try again";
+    }
+    else if (err.statusCode) {
+        statusCode = err.statusCode;
+        message = err.message;
+    }
+    res.status(statusCode).json({
+        success: false,
+        message,
+    });
+}
+export default globalErrorHandler;
+//# sourceMappingURL=globalErrorHandler.js.map
