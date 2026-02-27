@@ -10,6 +10,9 @@ router.get("/user/me", auth(Role.CUSTOMER, Role.ADMIN, Role.SELLER), userControl
 //Get all users
 router.get("/admin/users", auth(Role.ADMIN), userController.getAllUsers);
 
+router.get("/admin/stats", auth(Role.ADMIN), userController.adminStats);
+router.get("/seller/stats", auth(Role.SELLER), userController.sellerStats);
+router.get("/customer/stats", auth(Role.CUSTOMER), userController.customerStats);
 //To update your profile yourself
 router.patch("/user/update/:id", auth(Role.CUSTOMER, Role.SELLER, Role.ADMIN), userController.updateProfile);
 

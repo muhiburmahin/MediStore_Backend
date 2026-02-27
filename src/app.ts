@@ -9,16 +9,37 @@ import { analyticsRoutes } from "./modules/analytics/analytics.route";
 import { reviewRoutes } from "./modules/review/review.route";
 import { userRoutes } from "./modules/user/user.route";
 
-
 const app = express();
-app.use(express.json());
 
-app.all("/api/auth/*splat", toNodeHandler(auth));
+
+// app.use(cors({
+//     origin: process.env.APP_URL || "http://localhost:3000",
+//     credentials: true,
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+// }));
 
 app.use(cors({
-    origin: process.env.APP_URL || "http://localhost:5000",
-    credentials: true
-}));
+    origin: function (origin, callback) {
+        const allowedOrigins = [process.env.APP_URL, "http://localhost:3000"];
+
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+        return callback(new Error(msg), false);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie']
+}))
+
+app.use(express.json());
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
 
 app.get("/", (request: Request, respons: Response) => {
     respons.send("Hello world");
@@ -39,6 +60,7 @@ app.use("/api", userRoutes);
 
 
 export default app;
+
 
 
 

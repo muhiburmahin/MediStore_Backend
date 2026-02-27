@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { userService } from "./user.service";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
+import { User } from "../../../generated/prisma/client";
 
 
 const getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -35,6 +36,45 @@ const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 };
+const adminStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await userService.adminStats();
+        res.status(200).json({
+            success: true,
+            message: "Admin stats fetched successfully!",
+            data: result,
+        });
+    } catch (error: any) {
+        next(error);
+    }
+};
+
+const sellerStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await userService.sellerStats();
+        res.status(200).json({
+            success: true,
+            message: "Seller stats fetched successfully!",
+            data: result,
+        });
+    } catch (error: any) {
+        next(error);
+    }
+};
+
+const customerStats = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const user = req.user;
+        const result = await userService.customerStats(user as Partial<User>);
+        res.status(200).json({
+            success: true,
+            message: "Customer stats fetched successfully!",
+            data: result,
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
 
 
 const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -66,6 +106,9 @@ const updateProfile = async (req: Request, res: Response, next: NextFunction) =>
 export const userController = {
     getMyProfile,
     getAllUsers,
+    adminStats,
+    sellerStats,
+    customerStats,
     updateProfile
 
 };

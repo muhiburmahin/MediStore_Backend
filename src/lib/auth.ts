@@ -19,8 +19,9 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql", // or "mysql", "postgresql", ...etc
   }),
-  user: {
+  trustedOrigins: ["http://localhost:3000"],
 
+  user: {
     additionalFields: {
       role: {
         type: "string",
@@ -43,6 +44,14 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: false,
     requireEmailVerification: true,
+  },
+
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
   },
   emailVerification: {
     sendOnSignIn: true,
@@ -129,7 +138,6 @@ export const auth = betterAuth({
               This is an automated message, please do not reply.
             </td>
           </tr>
-
         </table>
       </td>
     </tr>
@@ -147,11 +155,5 @@ export const auth = betterAuth({
       // console.log("Message sent:", info.messageId);
     },
   },
-  socialProviders: {
-    google: {
-      prompt: "select_account",
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    },
-  }
+
 })

@@ -1,5 +1,5 @@
-import app from "./app";
-import { prisma } from "./lib/prisma";
+import app from "../../../MediStore/MediStore_Backend/src/app";
+import { prisma } from "../../../MediStore/MediStore_Backend/src/lib/prisma";
 const port = process.env.PORT || 5000;
 async function main() {
     try {
