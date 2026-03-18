@@ -13,18 +13,21 @@ export type AggregateCategory = {
 export type CategoryMinAggregateOutputType = {
     id: string | null;
     name: string | null;
+    imageUrl: string | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 };
 export type CategoryMaxAggregateOutputType = {
     id: string | null;
     name: string | null;
+    imageUrl: string | null;
     createdAt: Date | null;
     updatedAt: Date | null;
 };
 export type CategoryCountAggregateOutputType = {
     id: number;
     name: number;
+    imageUrl: number;
     createdAt: number;
     updatedAt: number;
     _all: number;
@@ -32,18 +35,21 @@ export type CategoryCountAggregateOutputType = {
 export type CategoryMinAggregateInputType = {
     id?: true;
     name?: true;
+    imageUrl?: true;
     createdAt?: true;
     updatedAt?: true;
 };
 export type CategoryMaxAggregateInputType = {
     id?: true;
     name?: true;
+    imageUrl?: true;
     createdAt?: true;
     updatedAt?: true;
 };
 export type CategoryCountAggregateInputType = {
     id?: true;
     name?: true;
+    imageUrl?: true;
     createdAt?: true;
     updatedAt?: true;
     _all?: true;
@@ -113,6 +119,7 @@ export type categoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 export type CategoryGroupByOutputType = {
     id: string;
     name: string;
+    imageUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
     _count: CategoryCountAggregateOutputType | null;
@@ -128,16 +135,18 @@ export type categoryWhereInput = {
     NOT?: Prisma.categoryWhereInput | Prisma.categoryWhereInput[];
     id?: Prisma.StringFilter<"category"> | string;
     name?: Prisma.StringFilter<"category"> | string;
+    imageUrl?: Prisma.StringNullableFilter<"category"> | string | null;
     createdAt?: Prisma.DateTimeFilter<"category"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"category"> | Date | string;
-    medicines?: Prisma.MedicineListRelationFilter;
+    medicine?: Prisma.MedicineListRelationFilter;
 };
 export type categoryOrderByWithRelationInput = {
     id?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
+    imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
-    medicines?: Prisma.medicineOrderByRelationAggregateInput;
+    medicine?: Prisma.medicineOrderByRelationAggregateInput;
 };
 export type categoryWhereUniqueInput = Prisma.AtLeast<{
     id?: string;
@@ -145,13 +154,15 @@ export type categoryWhereUniqueInput = Prisma.AtLeast<{
     AND?: Prisma.categoryWhereInput | Prisma.categoryWhereInput[];
     OR?: Prisma.categoryWhereInput[];
     NOT?: Prisma.categoryWhereInput | Prisma.categoryWhereInput[];
+    imageUrl?: Prisma.StringNullableFilter<"category"> | string | null;
     createdAt?: Prisma.DateTimeFilter<"category"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"category"> | Date | string;
-    medicines?: Prisma.MedicineListRelationFilter;
+    medicine?: Prisma.MedicineListRelationFilter;
 }, "id" | "name">;
 export type categoryOrderByWithAggregationInput = {
     id?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
+    imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
     _count?: Prisma.categoryCountOrderByAggregateInput;
@@ -164,70 +175,81 @@ export type categoryScalarWhereWithAggregatesInput = {
     NOT?: Prisma.categoryScalarWhereWithAggregatesInput | Prisma.categoryScalarWhereWithAggregatesInput[];
     id?: Prisma.StringWithAggregatesFilter<"category"> | string;
     name?: Prisma.StringWithAggregatesFilter<"category"> | string;
+    imageUrl?: Prisma.StringNullableWithAggregatesFilter<"category"> | string | null;
     createdAt?: Prisma.DateTimeWithAggregatesFilter<"category"> | Date | string;
     updatedAt?: Prisma.DateTimeWithAggregatesFilter<"category"> | Date | string;
 };
 export type categoryCreateInput = {
     id?: string;
     name: string;
+    imageUrl?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    medicines?: Prisma.medicineCreateNestedManyWithoutCategoryInput;
+    medicine?: Prisma.medicineCreateNestedManyWithoutCategoryInput;
 };
 export type categoryUncheckedCreateInput = {
     id?: string;
     name: string;
+    imageUrl?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
-    medicines?: Prisma.medicineUncheckedCreateNestedManyWithoutCategoryInput;
+    medicine?: Prisma.medicineUncheckedCreateNestedManyWithoutCategoryInput;
 };
 export type categoryUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
+    imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    medicines?: Prisma.medicineUpdateManyWithoutCategoryNestedInput;
+    medicine?: Prisma.medicineUpdateManyWithoutCategoryNestedInput;
 };
 export type categoryUncheckedUpdateInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
+    imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
-    medicines?: Prisma.medicineUncheckedUpdateManyWithoutCategoryNestedInput;
+    medicine?: Prisma.medicineUncheckedUpdateManyWithoutCategoryNestedInput;
 };
 export type categoryCreateManyInput = {
     id?: string;
     name: string;
+    imageUrl?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
 export type categoryUpdateManyMutationInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
+    imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type categoryUncheckedUpdateManyInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
+    imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
 export type categoryCountOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
+    imageUrl?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
 export type categoryMaxOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
+    imageUrl?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
 export type categoryMinOrderByAggregateInput = {
     id?: Prisma.SortOrder;
     name?: Prisma.SortOrder;
+    imageUrl?: Prisma.SortOrder;
     createdAt?: Prisma.SortOrder;
     updatedAt?: Prisma.SortOrder;
 };
@@ -238,55 +260,62 @@ export type CategoryScalarRelationFilter = {
 export type StringFieldUpdateOperationsInput = {
     set?: string;
 };
+export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null;
+};
 export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string;
 };
-export type categoryCreateNestedOneWithoutMedicinesInput = {
-    create?: Prisma.XOR<Prisma.categoryCreateWithoutMedicinesInput, Prisma.categoryUncheckedCreateWithoutMedicinesInput>;
-    connectOrCreate?: Prisma.categoryCreateOrConnectWithoutMedicinesInput;
+export type categoryCreateNestedOneWithoutMedicineInput = {
+    create?: Prisma.XOR<Prisma.categoryCreateWithoutMedicineInput, Prisma.categoryUncheckedCreateWithoutMedicineInput>;
+    connectOrCreate?: Prisma.categoryCreateOrConnectWithoutMedicineInput;
     connect?: Prisma.categoryWhereUniqueInput;
 };
-export type categoryUpdateOneRequiredWithoutMedicinesNestedInput = {
-    create?: Prisma.XOR<Prisma.categoryCreateWithoutMedicinesInput, Prisma.categoryUncheckedCreateWithoutMedicinesInput>;
-    connectOrCreate?: Prisma.categoryCreateOrConnectWithoutMedicinesInput;
-    upsert?: Prisma.categoryUpsertWithoutMedicinesInput;
+export type categoryUpdateOneRequiredWithoutMedicineNestedInput = {
+    create?: Prisma.XOR<Prisma.categoryCreateWithoutMedicineInput, Prisma.categoryUncheckedCreateWithoutMedicineInput>;
+    connectOrCreate?: Prisma.categoryCreateOrConnectWithoutMedicineInput;
+    upsert?: Prisma.categoryUpsertWithoutMedicineInput;
     connect?: Prisma.categoryWhereUniqueInput;
-    update?: Prisma.XOR<Prisma.XOR<Prisma.categoryUpdateToOneWithWhereWithoutMedicinesInput, Prisma.categoryUpdateWithoutMedicinesInput>, Prisma.categoryUncheckedUpdateWithoutMedicinesInput>;
+    update?: Prisma.XOR<Prisma.XOR<Prisma.categoryUpdateToOneWithWhereWithoutMedicineInput, Prisma.categoryUpdateWithoutMedicineInput>, Prisma.categoryUncheckedUpdateWithoutMedicineInput>;
 };
-export type categoryCreateWithoutMedicinesInput = {
+export type categoryCreateWithoutMedicineInput = {
     id?: string;
     name: string;
+    imageUrl?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
-export type categoryUncheckedCreateWithoutMedicinesInput = {
+export type categoryUncheckedCreateWithoutMedicineInput = {
     id?: string;
     name: string;
+    imageUrl?: string | null;
     createdAt?: Date | string;
     updatedAt?: Date | string;
 };
-export type categoryCreateOrConnectWithoutMedicinesInput = {
+export type categoryCreateOrConnectWithoutMedicineInput = {
     where: Prisma.categoryWhereUniqueInput;
-    create: Prisma.XOR<Prisma.categoryCreateWithoutMedicinesInput, Prisma.categoryUncheckedCreateWithoutMedicinesInput>;
+    create: Prisma.XOR<Prisma.categoryCreateWithoutMedicineInput, Prisma.categoryUncheckedCreateWithoutMedicineInput>;
 };
-export type categoryUpsertWithoutMedicinesInput = {
-    update: Prisma.XOR<Prisma.categoryUpdateWithoutMedicinesInput, Prisma.categoryUncheckedUpdateWithoutMedicinesInput>;
-    create: Prisma.XOR<Prisma.categoryCreateWithoutMedicinesInput, Prisma.categoryUncheckedCreateWithoutMedicinesInput>;
+export type categoryUpsertWithoutMedicineInput = {
+    update: Prisma.XOR<Prisma.categoryUpdateWithoutMedicineInput, Prisma.categoryUncheckedUpdateWithoutMedicineInput>;
+    create: Prisma.XOR<Prisma.categoryCreateWithoutMedicineInput, Prisma.categoryUncheckedCreateWithoutMedicineInput>;
     where?: Prisma.categoryWhereInput;
 };
-export type categoryUpdateToOneWithWhereWithoutMedicinesInput = {
+export type categoryUpdateToOneWithWhereWithoutMedicineInput = {
     where?: Prisma.categoryWhereInput;
-    data: Prisma.XOR<Prisma.categoryUpdateWithoutMedicinesInput, Prisma.categoryUncheckedUpdateWithoutMedicinesInput>;
+    data: Prisma.XOR<Prisma.categoryUpdateWithoutMedicineInput, Prisma.categoryUncheckedUpdateWithoutMedicineInput>;
 };
-export type categoryUpdateWithoutMedicinesInput = {
+export type categoryUpdateWithoutMedicineInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
+    imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
-export type categoryUncheckedUpdateWithoutMedicinesInput = {
+export type categoryUncheckedUpdateWithoutMedicineInput = {
     id?: Prisma.StringFieldUpdateOperationsInput | string;
     name?: Prisma.StringFieldUpdateOperationsInput | string;
+    imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
     createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
     updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -294,10 +323,10 @@ export type categoryUncheckedUpdateWithoutMedicinesInput = {
  * Count Type CategoryCountOutputType
  */
 export type CategoryCountOutputType = {
-    medicines: number;
+    medicine: number;
 };
 export type CategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-    medicines?: boolean | CategoryCountOutputTypeCountMedicinesArgs;
+    medicine?: boolean | CategoryCountOutputTypeCountMedicineArgs;
 };
 /**
  * CategoryCountOutputType without action
@@ -311,38 +340,42 @@ export type CategoryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * CategoryCountOutputType without action
  */
-export type CategoryCountOutputTypeCountMedicinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type CategoryCountOutputTypeCountMedicineArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     where?: Prisma.medicineWhereInput;
 };
 export type categorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     name?: boolean;
+    imageUrl?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
-    medicines?: boolean | Prisma.category$medicinesArgs<ExtArgs>;
+    medicine?: boolean | Prisma.category$medicineArgs<ExtArgs>;
     _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>;
 }, ExtArgs["result"]["category"]>;
 export type categorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     name?: boolean;
+    imageUrl?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 }, ExtArgs["result"]["category"]>;
 export type categorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
     id?: boolean;
     name?: boolean;
+    imageUrl?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 }, ExtArgs["result"]["category"]>;
 export type categorySelectScalar = {
     id?: boolean;
     name?: boolean;
+    imageUrl?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
 };
-export type categoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>;
+export type categoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "imageUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["category"]>;
 export type categoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-    medicines?: boolean | Prisma.category$medicinesArgs<ExtArgs>;
+    medicine?: boolean | Prisma.category$medicineArgs<ExtArgs>;
     _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>;
 };
 export type categoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {};
@@ -350,11 +383,12 @@ export type categoryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $categoryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     name: "category";
     objects: {
-        medicines: Prisma.$medicinePayload<ExtArgs>[];
+        medicine: Prisma.$medicinePayload<ExtArgs>[];
     };
     scalars: runtime.Types.Extensions.GetPayloadResult<{
         id: string;
         name: string;
+        imageUrl: string | null;
         createdAt: Date;
         updatedAt: Date;
     }, ExtArgs["result"]["category"]>;
@@ -686,7 +720,7 @@ export interface categoryDelegate<ExtArgs extends runtime.Types.Extensions.Inter
  */
 export interface Prisma__categoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise";
-    medicines<T extends Prisma.category$medicinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.category$medicinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$medicinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
+    medicine<T extends Prisma.category$medicineArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.category$medicineArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$medicinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>;
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -714,6 +748,7 @@ export interface Prisma__categoryClient<T, Null = never, ExtArgs extends runtime
 export interface categoryFieldRefs {
     readonly id: Prisma.FieldRef<"category", 'String'>;
     readonly name: Prisma.FieldRef<"category", 'String'>;
+    readonly imageUrl: Prisma.FieldRef<"category", 'String'>;
     readonly createdAt: Prisma.FieldRef<"category", 'DateTime'>;
     readonly updatedAt: Prisma.FieldRef<"category", 'DateTime'>;
 }
@@ -1087,9 +1122,9 @@ export type categoryDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
     limit?: number;
 };
 /**
- * category.medicines
+ * category.medicine
  */
-export type category$medicinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type category$medicineArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the medicine
      */

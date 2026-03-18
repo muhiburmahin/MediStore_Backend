@@ -3,91 +3,76 @@ import { AppError } from "../../middleware/appError";
 const createReview = async (userId, payload) => {
     const { medicineId, rating, comment } = payload;
     const existingReview = await prisma.review.findFirst({
-        where: {
-            userId,
-            medicineId
-        }
+        where: { userId, medicineId }
     });
-    if (existingReview) {
-        throw new AppError("You have already reviewed for this medicine.", 400);
-    }
+    if (existingReview)
+        throw new AppError("You have already reviewed this medicine.", 400);
     const deliveredOrder = await prisma.order.findFirst({
         where: {
             customerId: userId,
             status: "DELIVERED",
             items: {
-                some: {
-                    medicineId
-                }
+                some: { medicineId }
             }
         }
     });
-    if (!deliveredOrder) {
+    if (!deliveredOrder)
         throw new AppError("You can only review after the product is delivered.", 403);
-    }
     return await prisma.review.create({
         data: {
             rating: Number(rating),
             comment: comment || null,
-            userId: userId,
-            medicineId: medicineId
+            userId,
+            medicineId
         }
     });
 };
 const getMedicineReviews = async (medicineId) => {
     return await prisma.review.findMany({
-        where: {
-            medicineId
-        },
+        where: { medicineId },
         include: {
-            user: {
-                select: {
-                    name: true,
-                    image: true
-                }
-            }
+            user: { select: { name: true, image: true } }
         },
-        orderBy: {
-            createdat: 'desc'
-        }
+        orderBy: { createdat: 'desc' }
     });
 };
-export const getSingleMedicineWithAverageRating = async (id) => {
+const getSingleMedicineWithAverageRating = async (id) => {
     const medicine = await prisma.medicine.findUnique({
-        where: {
-            id
-        },
+        where: { id },
         include: {
-            reviews: {
-                include: {
-                    user: {
-                        select: {
-                            name: true,
-                            image: true
-                        }
-                    }
-                }
-            },
-            _count: {
-                select: {
-                    reviews: true
-                }
-            }
+            category: true,
+            _count: { select: { reviews: true } }
         }
     });
     if (!medicine)
         return null;
-    // Average Rating
-    const aggregate = await prisma.review.aggregate({
-        where: { medicineId: id },
-        _avg: {
-            rating: true
-        }
+    const [aggregate, ratingStats, reviews] = await Promise.all([
+        prisma.review.aggregate({
+            where: { medicineId: id },
+            _avg: { rating: true }
+        }),
+        prisma.review.groupBy({
+            by: ['rating'],
+            where: { medicineId: id },
+            _count: { rating: true }
+        }),
+        prisma.review.findMany({
+            where: { medicineId: id },
+            include: { user: { select: { name: true, image: true } } },
+            orderBy: { createdat: 'desc' },
+            take: 10
+        })
+    ]);
+    const starCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    ratingStats.forEach(stat => {
+        starCounts[stat.rating] = stat._count.rating;
     });
     return {
         ...medicine,
-        averageRating: aggregate._avg.rating || 0,
-        totalReviews: medicine._count.reviews
+        reviews,
+        averageRating: aggregate._avg.rating ? parseFloat(aggregate._avg.rating.toFixed(1)) : 0,
+        totalReviews: medicine._count.reviews,
+        starCounts
     };
 };
 export const reviewService = {

@@ -89,6 +89,7 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export const CategoryScalarFieldEnum = {
     id: 'id',
     name: 'name',
+    imageUrl: 'imageUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
@@ -99,7 +100,7 @@ export const MedicineScalarFieldEnum = {
     price: 'price',
     stock: 'stock',
     manufacturer: 'manufacturer',
-    imageUrl: 'imageUrl',
+    images: 'images',
     categoryId: 'categoryId',
     sellerId: 'sellerId',
     createdAt: 'createdAt',

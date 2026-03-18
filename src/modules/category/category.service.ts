@@ -1,27 +1,27 @@
 import { prisma } from "../../lib/prisma"
 
-const createCategory = async (category: string) => {
+const createCategory = async (category: string, imageUrl?: string | null) => {
     const existingCategory = await prisma.category.findUnique({
         where: {
             name: category,
         },
     });
+
     if (existingCategory) {
         throw new Error("Category already exists");
     }
     return await prisma.category.create({
         data: {
             name: category,
+            imageUrl: imageUrl ?? null,
         },
     });
 };
 
+// category.service.ts
 const getAllCategories = async () => {
     const [categories, totalCount] = await Promise.all([
         prisma.category.findMany({
-            include: {
-                medicines: true,
-            },
             orderBy: {
                 createdAt: 'desc',
             }

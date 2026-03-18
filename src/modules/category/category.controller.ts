@@ -4,26 +4,25 @@ import { categoryService } from "./category.service";
 //create Cetagory
 const createCategory = async (req: Request, res: Response) => {
     try {
-        const { name: category } = req.body;
-        if (!category) {
-            throw new Error("Category is required")
+        const { name, imageUrl } = req.body;
+
+        if (!name) {
+            return res.status(400).json({ success: false, message: "Name is required" });
         }
-        const result = await categoryService.createCategory(category)
+        const result = await categoryService.createCategory(name, imageUrl);
+
         res.status(201).json({
             success: true,
             message: "Category created successfully",
             data: result
-        })
-    }
-    catch (err: any) {
-        res.status(400).json({
+        });
+    } catch (err: any) {
+        res.status(err.message === "Category already exists" ? 409 : 500).json({
             success: false,
-            message: "Category created failed",
-            error: err.message
+            message: err.message || "Internal Server Error"
         });
     }
 };
-
 //get all Category
 const getAllCategories = async (req: Request, res: Response) => {
     try {
@@ -66,5 +65,7 @@ const deleteCategoryById = async (req: Request, res: Response) => {
 
 
 export const categoryController = {
-    createCategory, getAllCategories, deleteCategoryById
+    createCategory,
+    getAllCategories,
+    deleteCategoryById
 }

@@ -4,7 +4,7 @@ import { AppError } from "../../middleware/appError";
 
 const createOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const userId = req.user!.id;
+        const userId = req.user?.id;
         if (!userId) throw new AppError("Unauthorized", 401);
         const result = await orderService.createOrder(userId, req.body);
 
@@ -23,22 +23,26 @@ const createOrder = async (req: Request, res: Response, next: NextFunction) => {
 const getOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.user?.id;
-        const userRole = req.user!.role;
+        const userRole = req.user?.role;
         const path = req.originalUrl;
 
         if (!userId) throw new AppError("Unauthorized", 401);
+
         let result;
 
-        if (path.includes("seller") && userRole === "SELLER") {
-            result = await orderService.getSellerOrders(userId!);
+        if (userRole === "ADMIN") {
+            result = await orderService.getAllOrders();
+        }
+        else if (path.includes("seller") && userRole === "SELLER") {
+            result = await orderService.getSellerOrders(userId);
         }
         else {
-            result = await orderService.getMyOrders(userId!);
+            result = await orderService.getMyOrders(userId);
         }
 
         res.status(200).json({
             success: true,
-            message: "Orders get successfully!",
+            message: "Orders fetched successfully!",
             data: result
         });
     }
@@ -46,7 +50,6 @@ const getOrders = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 };
-
 const getSingleOrderById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const orderId = req.params.id;

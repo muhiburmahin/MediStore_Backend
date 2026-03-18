@@ -11,7 +11,7 @@ export declare const orderService: {
                 price: number;
                 stock: number;
                 manufacturer: string;
-                imageUrl: string | null;
+                images: string[];
                 categoryId: string;
                 sellerId: string;
             };
@@ -29,9 +29,9 @@ export declare const orderService: {
         updatedAt: Date;
         status: orderStatus;
         phone: string | null;
+        customerId: string;
         shippingAddress: string;
         totalAmount: number;
-        customerId: string;
     }>;
     getMyOrders: (customerId: string) => Promise<({
         items: ({
@@ -44,7 +44,7 @@ export declare const orderService: {
                 price: number;
                 stock: number;
                 manufacturer: string;
-                imageUrl: string | null;
+                images: string[];
                 categoryId: string;
                 sellerId: string;
             };
@@ -62,11 +62,12 @@ export declare const orderService: {
         updatedAt: Date;
         status: orderStatus;
         phone: string | null;
+        customerId: string;
         shippingAddress: string;
         totalAmount: number;
-        customerId: string;
     })[]>;
-    getSellerOrders: (sellerId: string) => Promise<({
+    getSellerOrders: (sellerId: string) => Promise<{
+        totalAmount: number;
         customer: {
             name: string;
             email: string;
@@ -81,7 +82,7 @@ export declare const orderService: {
                 price: number;
                 stock: number;
                 manufacturer: string;
-                imageUrl: string | null;
+                images: string[];
                 categoryId: string;
                 sellerId: string;
             };
@@ -93,16 +94,14 @@ export declare const orderService: {
             quantity: number;
             orderId: string;
         })[];
-    } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
         status: orderStatus;
         phone: string | null;
-        shippingAddress: string;
-        totalAmount: number;
         customerId: string;
-    })[]>;
+        shippingAddress: string;
+    }[]>;
     getSingleOrderById: (orderId: string) => Promise<{
         customer: {
             name: string;
@@ -118,7 +117,7 @@ export declare const orderService: {
                 price: number;
                 stock: number;
                 manufacturer: string;
-                imageUrl: string | null;
+                images: string[];
                 categoryId: string;
                 sellerId: string;
             };
@@ -136,9 +135,9 @@ export declare const orderService: {
         updatedAt: Date;
         status: orderStatus;
         phone: string | null;
+        customerId: string;
         shippingAddress: string;
         totalAmount: number;
-        customerId: string;
     }>;
     updateOrderStatus: (orderId: string, status: string, userId: string, userRole: string) => Promise<{
         id: string;
@@ -146,9 +145,9 @@ export declare const orderService: {
         updatedAt: Date;
         status: orderStatus;
         phone: string | null;
+        customerId: string;
         shippingAddress: string;
         totalAmount: number;
-        customerId: string;
     }>;
     deleteOrderById: (id: string) => Promise<{
         id: string;
@@ -156,9 +155,46 @@ export declare const orderService: {
         updatedAt: Date;
         status: orderStatus;
         phone: string | null;
+        customerId: string;
         shippingAddress: string;
         totalAmount: number;
-        customerId: string;
     }>;
+    getAllOrders: () => Promise<({
+        customer: {
+            name: string;
+            email: string;
+        };
+        items: ({
+            medicine: {
+                id: string;
+                name: string;
+                createdAt: Date;
+                updatedAt: Date;
+                description: string;
+                price: number;
+                stock: number;
+                manufacturer: string;
+                images: string[];
+                categoryId: string;
+                sellerId: string;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            price: number;
+            medicineId: string;
+            quantity: number;
+            orderId: string;
+        })[];
+    } & {
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: orderStatus;
+        phone: string | null;
+        customerId: string;
+        shippingAddress: string;
+        totalAmount: number;
+    })[]>;
 };
 //# sourceMappingURL=order.service.d.ts.map

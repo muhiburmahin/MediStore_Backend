@@ -1,5 +1,5 @@
 import { prisma } from "../../lib/prisma";
-const createCategory = async (category) => {
+const createCategory = async (category, imageUrl) => {
     const existingCategory = await prisma.category.findUnique({
         where: {
             name: category,
@@ -11,15 +11,14 @@ const createCategory = async (category) => {
     return await prisma.category.create({
         data: {
             name: category,
+            imageUrl: imageUrl ?? null,
         },
     });
 };
+// category.service.ts
 const getAllCategories = async () => {
     const [categories, totalCount] = await Promise.all([
         prisma.category.findMany({
-            include: {
-                medicines: true,
-            },
             orderBy: {
                 createdAt: 'desc',
             }

@@ -1,36 +1,25 @@
 export declare const categoryService: {
-    createCategory: (category: string) => Promise<{
+    createCategory: (category: string, imageUrl?: string | null) => Promise<{
         id: string;
         name: string;
+        imageUrl: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;
     getAllCategories: () => Promise<{
-        categories: ({
-            medicines: {
-                id: string;
-                name: string;
-                createdAt: Date;
-                updatedAt: Date;
-                description: string;
-                price: number;
-                stock: number;
-                manufacturer: string;
-                imageUrl: string | null;
-                categoryId: string;
-                sellerId: string;
-            }[];
-        } & {
+        categories: {
             id: string;
             name: string;
+            imageUrl: string | null;
             createdAt: Date;
             updatedAt: Date;
-        })[];
+        }[];
         totalCount: number;
     }>;
     deleteCategoryById: (id: string) => Promise<{
         id: string;
         name: string;
+        imageUrl: string | null;
         createdAt: Date;
         updatedAt: Date;
     }>;

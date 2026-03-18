@@ -14,7 +14,6 @@ const getMyProfile = async (req, res, next) => {
         next(error);
     }
 };
-//Get All Users
 const getAllUsers = async (req, res, next) => {
     try {
         const result = await userService.getAllUsers();
@@ -33,7 +32,7 @@ const adminStats = async (req, res, next) => {
         const result = await userService.adminStats();
         res.status(200).json({
             success: true,
-            message: "Admin stats fetched successfully!",
+            message: "Overall platform stats fetched successfully!",
             data: result,
         });
     }
@@ -43,10 +42,11 @@ const adminStats = async (req, res, next) => {
 };
 const sellerStats = async (req, res, next) => {
     try {
-        const result = await userService.sellerStats();
+        const sellerId = req.user.id;
+        const result = await userService.sellerStats(sellerId);
         res.status(200).json({
             success: true,
-            message: "Seller stats fetched successfully!",
+            message: "Your sales and product stats fetched successfully!",
             data: result,
         });
     }
@@ -56,11 +56,11 @@ const sellerStats = async (req, res, next) => {
 };
 const customerStats = async (req, res, next) => {
     try {
-        const user = req.user;
-        const result = await userService.customerStats(user);
+        const customerId = req.user.id;
+        const result = await userService.customerStats(customerId);
         res.status(200).json({
             success: true,
-            message: "Customer stats fetched successfully!",
+            message: "Your personal order summary fetched successfully!",
             data: result,
         });
     }
@@ -76,7 +76,7 @@ const updateProfile = async (req, res, next) => {
             delete req.body.role;
             delete req.body.email;
             if (req.params.id && req.params.id !== req.user.id) {
-                throw new AppError("You can only update your own profile!", 403);
+                throw new AppError("Forbidden! You can only update your own profile.", 403);
             }
         }
         const result = await userService.updateProfile(targetId, req.body);

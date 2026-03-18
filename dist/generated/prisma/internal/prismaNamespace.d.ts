@@ -959,6 +959,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export declare const CategoryScalarFieldEnum: {
     readonly id: "id";
     readonly name: "name";
+    readonly imageUrl: "imageUrl";
     readonly createdAt: "createdAt";
     readonly updatedAt: "updatedAt";
 };
@@ -970,7 +971,7 @@ export declare const MedicineScalarFieldEnum: {
     readonly price: "price";
     readonly stock: "stock";
     readonly manufacturer: "manufacturer";
-    readonly imageUrl: "imageUrl";
+    readonly images: "images";
     readonly categoryId: "categoryId";
     readonly sellerId: "sellerId";
     readonly createdAt: "createdAt";

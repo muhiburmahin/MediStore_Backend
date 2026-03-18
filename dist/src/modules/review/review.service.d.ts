@@ -1,42 +1,16 @@
-export declare const getSingleMedicineWithAverageRating: (id: string) => Promise<{
-    averageRating: number;
-    totalReviews: number;
-    _count: {
-        reviews: number;
-    };
-    reviews: ({
-        user: {
-            name: string;
-            image: string | null;
-        };
-    } & {
-        id: string;
-        userId: string;
-        comment: string | null;
-        rating: number;
-        medicineId: string;
-        createdat: Date;
-    })[];
-    id: string;
-    name: string;
-    createdAt: Date;
-    updatedAt: Date;
-    description: string;
-    price: number;
-    stock: number;
-    manufacturer: string;
-    imageUrl: string | null;
-    categoryId: string;
-    sellerId: string;
-} | null>;
+interface ICreateReviewPayload {
+    medicineId: string;
+    rating: number | string;
+    comment?: string;
+}
 export declare const reviewService: {
-    createReview: (userId: string, payload: any) => Promise<{
+    createReview: (userId: string, payload: ICreateReviewPayload) => Promise<{
         id: string;
         userId: string;
-        comment: string | null;
-        rating: number;
         medicineId: string;
+        rating: number;
         createdat: Date;
+        comment: string | null;
     }>;
     getMedicineReviews: (medicineId: string) => Promise<({
         user: {
@@ -46,17 +20,12 @@ export declare const reviewService: {
     } & {
         id: string;
         userId: string;
-        comment: string | null;
-        rating: number;
         medicineId: string;
+        rating: number;
         createdat: Date;
+        comment: string | null;
     })[]>;
     getSingleMedicineWithAverageRating: (id: string) => Promise<{
-        averageRating: number;
-        totalReviews: number;
-        _count: {
-            reviews: number;
-        };
         reviews: ({
             user: {
                 name: string;
@@ -65,11 +34,24 @@ export declare const reviewService: {
         } & {
             id: string;
             userId: string;
-            comment: string | null;
-            rating: number;
             medicineId: string;
+            rating: number;
             createdat: Date;
+            comment: string | null;
         })[];
+        averageRating: number;
+        totalReviews: number;
+        starCounts: Record<number, number>;
+        category: {
+            id: string;
+            name: string;
+            imageUrl: string | null;
+            createdAt: Date;
+            updatedAt: Date;
+        };
+        _count: {
+            reviews: number;
+        };
         id: string;
         name: string;
         createdAt: Date;
@@ -78,9 +60,10 @@ export declare const reviewService: {
         price: number;
         stock: number;
         manufacturer: string;
-        imageUrl: string | null;
+        images: string[];
         categoryId: string;
         sellerId: string;
     } | null>;
 };
+export {};
 //# sourceMappingURL=review.service.d.ts.map

@@ -23,8 +23,8 @@ export declare const auth: import("better-auth").Auth<{
     };
     emailAndPassword: {
         enabled: true;
-        autoSignIn: false;
-        requireEmailVerification: true;
+        autoSignIn: true;
+        requireEmailVerification: false;
     };
     socialProviders: {
         google: {

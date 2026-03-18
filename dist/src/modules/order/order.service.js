@@ -9,168 +9,118 @@ const createOrder = async (customerId, payload) => {
             const med = await tx.medicine.findUnique({
                 where: { id: item.medicineId }
             });
-            if (!med) {
-                throw new AppError(`This medicine not found`, 404);
-            }
+            if (!med)
+                throw new AppError(`Medicine not found`, 404);
             if (med.stock < item.quantity) {
-                throw new AppError(`${med.name} There is not enough stock of it. There is only${med.stock}`, 400);
+                throw new AppError(`${med.name} stock is insufficient. Available: ${med.stock}`, 400);
             }
             calculatedTotalAmount += med.price * item.quantity;
-            //update stock
             await tx.medicine.update({
-                where: {
-                    id: med.id
-                },
-                data: {
-                    stock: {
-                        decrement: item.quantity
-                    }
-                }
+                where: { id: med.id },
+                data: { stock: { decrement: item.quantity } }
             });
-            // OrderItem formet
             orderItemsData.push({
                 medicineId: med.id,
                 quantity: item.quantity,
                 price: med.price
             });
         }
-        // create main order
-        const newOrder = await tx.order.create({
+        return await tx.order.create({
             data: {
                 customerId,
                 shippingAddress,
                 phone,
                 totalAmount: calculatedTotalAmount,
                 status: "PLACED",
-                items: {
-                    create: orderItemsData
-                }
+                items: { create: orderItemsData }
             },
-            include: {
-                items: {
-                    include: {
-                        medicine: true
-                    }
-                }
-            }
+            include: { items: { include: { medicine: true } } }
         });
-        return newOrder;
     });
 };
-//get won order
-const getMyOrders = async (customerId) => {
-    return await prisma.order.findMany({
-        where: {
-            customerId
-        },
-        include: {
-            items: {
-                include: {
-                    medicine: true
-                }
-            }
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
-};
-//only seller
 const getSellerOrders = async (sellerId) => {
-    return await prisma.order.findMany({
+    const orders = await prisma.order.findMany({
         where: {
             items: {
                 some: {
-                    medicine: {
-                        sellerId: sellerId
-                    }
+                    medicine: { sellerId: sellerId }
                 }
             }
         },
         include: {
             items: {
-                include: {
-                    medicine: true
-                }
+                where: {
+                    medicine: { sellerId: sellerId }
+                },
+                include: { medicine: true }
             },
             customer: {
-                select: {
-                    name: true,
-                    email: true
-                }
+                select: { name: true, email: true }
             }
         },
+        orderBy: { createdAt: 'desc' }
+    });
+    return orders.map(order => {
+        const sellerOnlyTotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        return {
+            ...order,
+            totalAmount: sellerOnlyTotal
+        };
+    });
+};
+const getMyOrders = async (customerId) => {
+    return await prisma.order.findMany({
+        where: { customerId },
+        include: { items: { include: { medicine: true } } },
         orderBy: { createdAt: 'desc' }
     });
 };
 const getSingleOrderById = async (orderId) => {
     const order = await prisma.order.findUnique({
-        where: {
-            id: orderId
-        },
+        where: { id: orderId },
         include: {
-            items: {
-                include: {
-                    medicine: true
-                }
-            },
-            customer: {
-                select: {
-                    name: true,
-                    email: true
-                }
-            }
+            items: { include: { medicine: true } },
+            customer: { select: { name: true, email: true } }
         }
     });
-    if (!order) {
-        throw new AppError("This order not found", 404);
-    }
+    if (!order)
+        throw new AppError("Order not found", 404);
     return order;
 };
-//update order
 const updateOrderStatus = async (orderId, status, userId, userRole) => {
     const order = await prisma.order.findUnique({
-        where: {
-            id: orderId
-        },
-        include: {
-            items: {
-                include: {
-                    medicine: true
-                }
-            }
-        }
+        where: { id: orderId },
+        include: { items: { include: { medicine: true } } }
     });
     if (!order)
         throw new AppError("Order not found", 404);
     const isOwner = order.items.some(item => item.medicine.sellerId === userId);
     if (userRole !== 'ADMIN' && !isOwner) {
-        throw new AppError("You are not update this order status", 403);
+        throw new AppError("You don't have permission to update this order", 403);
     }
     return await prisma.order.update({
-        where: {
-            id: orderId
-        },
-        data: {
-            status: status
-        }
+        where: { id: orderId },
+        data: { status: status }
     });
 };
 const deleteOrderById = async (id) => {
-    const order = await prisma.order.findUnique({
-        where: {
-            id
-        },
-    });
-    if (!order) {
+    const order = await prisma.order.findUnique({ where: { id } });
+    if (!order)
         throw new AppError("Order not found", 404);
-    }
-    const result = await prisma.order.delete({
-        where: {
-            id
+    return await prisma.order.delete({ where: { id } });
+};
+const getAllOrders = async () => {
+    return await prisma.order.findMany({
+        include: {
+            items: {
+                include: { medicine: true }
+            },
+            customer: {
+                select: { name: true, email: true }
+            }
         },
+        orderBy: { createdAt: 'desc' }
     });
-    return result;
 };
 export const orderService = {
     createOrder,
@@ -178,6 +128,7 @@ export const orderService = {
     getSellerOrders,
     getSingleOrderById,
     updateOrderStatus,
-    deleteOrderById
+    deleteOrderById,
+    getAllOrders
 };
 //# sourceMappingURL=order.service.js.map

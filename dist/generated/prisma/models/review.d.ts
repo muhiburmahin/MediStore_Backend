@@ -232,15 +232,15 @@ export type reviewCreateInput = {
     comment?: string | null;
     rating: number;
     createdat?: Date | string;
-    medicine: Prisma.medicineCreateNestedOneWithoutReviewsInput | undefined;
-    user: Prisma.UserCreateNestedOneWithoutReviewsInput | undefined;
+    medicine: Prisma.medicineCreateNestedOneWithoutReviewsInput;
+    user: Prisma.UserCreateNestedOneWithoutReviewsInput;
 };
 export type reviewUncheckedCreateInput = {
     id?: string;
     comment?: string | null;
     rating: number;
-    medicineId: string | undefined;
-    userId: string | undefined;
+    medicineId: string;
+    userId: string;
     createdat?: Date | string;
 };
 export type reviewUpdateInput = {
