@@ -16,9 +16,24 @@ const transporter = nodemailer.createTransport({
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "postgresql", // or "mysql", "postgresql", ...etc
+    provider: "postgresql",
   }),
-  trustedOrigins: ["http://localhost:3000"],
+  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+
+  session: {
+    cookieCache: { enabled: true, maxAge: 5 * 60 },
+  },
+  advanced: {
+    cookiePrefix: "better-auth",
+    useSecureCookies: process.env.NODE_ENV === "production",
+    crossSubDomainCookies: { enabled: false },
+    disableCSRFCheck: true,
+  },
+
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://medistore-iota.vercel.app"
+  ],
 
   user: {
     additionalFields: {
@@ -33,12 +48,14 @@ export const auth = betterAuth({
         defaultValue: UserStatus.ACTIVE,
         required: true,
         allowedValues: [UserStatus.ACTIVE, UserStatus.BANNED],
-      }, phone: {
+      },
+      phone: {
         type: "string",
         required: false
       }
     },
   },
+
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
@@ -52,107 +69,31 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
+
   emailVerification: {
-    sendOnSignIn: true,
+    sendOnSignIn: false,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
       try {
         const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
 
-        const info = await transporter.sendMail({
+        await transporter.sendMail({
           from: '"MediStore" <your-email@gmail.com>',
           to: user.email,
           subject: "Verify Your Email Address ✔",
           text: `Please verify your email using this link: ${verificationUrl}`,
           html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Email Verification</title>
-</head>
-<body style="margin:0; padding:0; background:linear-gradient(135deg,#667eea,#764ba2); font-family:Arial, sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center" style="padding:50px 15px;">
-        <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
-
-          <!-- Header -->
-          <tr>
-            <td style="background:linear-gradient(90deg,#4f46e5,#6366f1); padding:25px; text-align:center; color:#ffffff;">
-              <h1 style="margin:0; font-size:26px;">Verify Your Email</h1>
-              <p style="margin:8px 0 0; font-size:14px; opacity:0.9;">
-                Secure your account in one step
-              </p>
-            </td>
-          </tr>
-
-          <!-- Body -->
-          <tr>
-            <td style="padding:35px; color:#333;">
-              <p style="font-size:16px;">Hello ${user.name}</p>
-
-              <p style="font-size:16px; line-height:1.7;">
-                Thank you for signing up! Please confirm your email address to
-                activate your account and start using our services.
-              </p>
-
-              <div style="text-align:center; margin:35px 0;">
-                <a href="${verificationUrl}"
-                   style="
-                     background:linear-gradient(90deg,#22c55e,#16a34a);
-                     color:#ffffff;
-                     padding:16px 34px;
-                     text-decoration:none;
-                     border-radius:30px;
-                     font-size:16px;
-                     font-weight:bold;
-                     display:inline-block;
-                     box-shadow:0 6px 15px rgba(34,197,94,0.4);
-                   ">
-                  Verify Email Address
-                </a>
-              </div>
-
-              <p style="font-size:14px; color:#555;">
-                If the button above doesn’t work, copy and paste the following link into your browser:
-              </p>
-
-              <p style="font-size:14px; word-break:break-all; background:#f1f5f9; padding:10px; border-radius:6px;">
-                <a href="${verificationUrl}" style="color:#4f46e5;">
-                  ${verificationUrl}
-                </a>
-              </p>
-
-              <p style="font-size:14px; color:#777; margin-top:30px;">
-                If you did not create an account, no further action is required.
-              </p>
-            </td>
-          </tr>
-
-          <!-- Footer -->
-          <tr>
-            <td style="background:#f8fafc; padding:18px; text-align:center; font-size:12px; color:#64748b;">
-              © 2026 Your App. All rights reserved.<br/>
-              This is an automated message, please do not reply.
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-  `,
+            <div style="font-family: Arial, sans-serif;">
+               <h2>Hello ${user.name}</h2>
+               <p>Please click the button below to verify your email:</p>
+               <a href="${verificationUrl}" style="background: #22c55e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email Address</a>
+            </div>
+          `,
         });
-      }
-      catch (err) {
-        console.error(err)
+      } catch (err) {
+        console.error("Email sending failed:", err);
         throw err;
       }
-
-      // console.log("Message sent:", info.messageId);
     },
   },
-
-})
+});

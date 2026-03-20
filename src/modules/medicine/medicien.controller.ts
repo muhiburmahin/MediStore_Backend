@@ -43,7 +43,7 @@ const createMedicine = async (req: Request, res: Response, next: NextFunction) =
 
 const getAllMedicines = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const filters = pick(req.query, ['search', 'categoryId', 'sellerId']);
+        const filters = pick(req.query, ['search', 'categoryId', 'sellerId', 'category']);
         const options = pick(req.query, ['page', 'limit', 'sortBy', 'sortOrder']);
 
 

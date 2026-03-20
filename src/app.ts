@@ -1,8 +1,8 @@
 import express, { Request, Response } from "express";
-import { categoryRoute } from "./modules/category/category.route";
+import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
-import cors from "cors";
+import { categoryRoute } from "./modules/category/category.route";
 import { medicineRoute } from "./modules/medicine/medicien.route";
 import { orderRoutes } from "./modules/order/order.route";
 import { reviewRoutes } from "./modules/review/review.route";
@@ -10,60 +10,52 @@ import { userRoutes } from "./modules/user/user.route";
 
 const app = express();
 
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://medistore-iota.vercel.app",
+    process.env.APP_URL,
+    process.env.PROD_APP_URL,
+].filter(Boolean) as string[];
 
-// app.use(cors({
-//     origin: process.env.APP_URL || "http://localhost:3000",
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-// }));
+app.use(
+    cors({
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
 
-app.use(cors({
-    origin: function (origin, callback) {
-        const allowedOrigins = [
-            "http://localhost:3000", // Frontend
-            "http://localhost:5000", // Backend (self)
-            process.env.APP_URL,      // Production Frontend
-            process.env.BETTER_AUTH_URL // Better Auth base URL
-        ].filter(Boolean) as string[];
+            const isAllowed =
+                allowedOrigins.includes(origin) ||
+                /^https:\/\/medistore-.*\.vercel\.app$/.test(origin) ||
+                /^https:\/\/.*\.vercel\.app$/.test(origin);
 
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            console.error(`CORS Blocked for origin: ${origin}`);
-            callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-    exposedHeaders: ['Set-Cookie']
-}));
+            if (isAllowed) {
+                callback(null, true);
+            } else {
+                console.error(`CORS Blocked for origin: ${origin}`);
+                callback(new Error(`Origin ${origin} not allowed by CORS`));
+            }
+        },
+        credentials: true,
+        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+        exposedHeaders: ["Set-Cookie"],
+    })
+);
 
 app.use(express.json());
+
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
-
-app.get("/", (request: Request, respons: Response) => {
-    respons.send("Hello world");
+app.get("/", (req: Request, res: Response) => {
+    res.json({ message: "MediStore Backend is running!" });
 });
 
-
 app.use("/api/categories", categoryRoute);
-
 app.use("/api/medicines", medicineRoute);
 app.use("/api/seller/medicines", medicineRoute);
-
 app.use("/api/orders", orderRoutes);
-app.use("/api/seller/orders", orderRoutes)
+app.use("/api/seller/orders", orderRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api", userRoutes);
 
-
 export default app;
-
-
-
 

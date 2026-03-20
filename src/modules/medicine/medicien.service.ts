@@ -43,10 +43,10 @@ const createMedicine = async (payload: medicine): Promise<medicine> => {
 };
 
 const getAllMedicines = async (
-    filters: { search?: string; categoryId?: string; sellerId?: string },
+    filters: { search?: string; categoryId?: string; sellerId?: string; category?: string },
     options: IOptions
 ) => {
-    const { search, categoryId, sellerId } = filters;
+    const { search, categoryId, sellerId, category } = filters;
     const { page, limit, skip, sortBy, sortOrder } = paginationHelpers.calculatePagination(options);
 
     const andConditions: Prisma.medicineWhereInput[] = [];
@@ -67,6 +67,16 @@ const getAllMedicines = async (
 
     if (categoryId) {
         andConditions.push({ categoryId });
+    }
+    if (category) {
+        andConditions.push({
+            category: {
+                name: {
+                    equals: category,
+                    mode: "insensitive",
+                },
+            },
+        });
     }
 
     const whereConditions: Prisma.medicineWhereInput = andConditions.length > 0
