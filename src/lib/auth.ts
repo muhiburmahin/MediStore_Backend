@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { Role, UserStatus } from "../../generated/prisma/enums";
+import { Role, UserStatus } from "../generated/prisma/client";
 import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({

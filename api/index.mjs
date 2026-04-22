@@ -7,10 +7,6 @@ import { toNodeHandler } from "better-auth/node";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
-// src/lib/prisma.ts
-import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
-
 // generated/prisma/client.ts
 import * as path from "path";
 import { fileURLToPath } from "url";
@@ -79,9 +75,9 @@ globalThis["__dirname"] = path.dirname(fileURLToPath(import.meta.url));
 var PrismaClient = getPrismaClientClass();
 
 // src/lib/prisma.ts
-var connectionString = `${process.env.DATABASE_URL}`;
-var adapter = new PrismaPg({ connectionString });
-var prisma = new PrismaClient({ adapter });
+var globalForPrisma = global;
+var prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 // src/lib/auth.ts
 import nodemailer from "nodemailer";
@@ -96,7 +92,7 @@ var transporter = nodemailer.createTransport({
 });
 var auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "postgresql"
+    provider: "mysql"
   }),
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
   session: {
