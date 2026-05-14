@@ -14,7 +14,13 @@ const validateRequest = (schema: ZodTypeAny) => {
         params?: Request["params"];
       };
       if (parsed.body !== undefined) req.body = parsed.body;
-      if (parsed.query !== undefined) req.query = parsed.query;
+      if (parsed.query !== undefined) {
+        const set = Reflect.set(req, "query", parsed.query as Request["query"]);
+        if (!set) {
+          (req as Request & { validatedQuery?: Request["query"] }).validatedQuery =
+            parsed.query as Request["query"];
+        }
+      }
       if (parsed.params !== undefined) req.params = parsed.params;
       next();
     } catch (err) {

@@ -25,37 +25,30 @@ const allowedOrigins = [
   process.env.APP_URL,
   process.env.PROD_APP_URL,
 ].filter(Boolean) as string[];
+
 app.use(
   cors({
-    origin: true, // এটি যেকোনো অরিজিনকে এলাউ করবে
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        /^https:\/\/medistore-.*\.vercel\.app$/.test(origin) ||
+        /^https:\/\/.*\.vercel\.app$/.test(origin);
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        console.error(`CORS Blocked for origin: ${origin}`);
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
+    exposedHeaders: ["Set-Cookie"],
   })
 );
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       if (!origin) return callback(null, true);
-
-//       const isAllowed =
-//         allowedOrigins.includes(origin) ||
-//         /^https:\/\/medistore-.*\.vercel\.app$/.test(origin) ||
-//         /^https:\/\/.*\.vercel\.app$/.test(origin);
-
-//       if (isAllowed) {
-//         callback(null, true);
-//       } else {
-//         console.error(`CORS Blocked for origin: ${origin}`);
-//         callback(new Error(`Origin ${origin} not allowed by CORS`));
-//       }
-//     },
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-//     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-//     exposedHeaders: ["Set-Cookie"],
-//   })
-// );
 
 app.post(
   "/api/payments/webhook/stripe",

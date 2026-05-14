@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { Role, UserStatus } from "../generated/prisma/client";
+import { Role, UserStatus } from "@prisma/client";
 import { auth as betterAuth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 

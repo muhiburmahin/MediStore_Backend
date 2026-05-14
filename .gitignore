@@ -3,5 +3,14 @@ node_modules
 .env
 
 /generated/prisma
+src/generated
+
+# Vercel handler bundle (rebuilt by `npm run build` / `tsup`)
+api/index.js
+api/index.js.map
+api/index.mjs
+api/index.mjs.map
+
+dist
 
 .vercel

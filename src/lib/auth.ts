@@ -1,28 +1,49 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { Role, UserStatus } from "../generated/prisma/client";
+import { Role, UserStatus } from "@prisma/client";
 import nodemailer from "nodemailer";
 import { env } from "../config/env";
 import { sendEmail } from "../utils/sendEmail";
 
-const mailTransport =
-  env.APP_USER && env.APP_PASS
-    ? nodemailer.createTransport({
-        host: "smtp.gmail.com",
-        port: 587,
-        secure: false,
-        auth: { user: env.APP_USER, pass: env.APP_PASS },
-      })
-    : null;
+const smtpConfigured = Boolean(env.APP_USER && env.APP_PASS);
 
-const trustedOrigins = [
-  "http://localhost:3000",
-  "https://medistore-iota.vercel.app",
-  env.FRONTEND_URL,
-  env.APP_URL,
-  process.env.PROD_APP_URL,
-].filter(Boolean) as string[];
+const mailTransport = smtpConfigured
+  ? nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: { user: env.APP_USER, pass: env.APP_PASS },
+    })
+  : null;
+
+/** Better Auth only allows callbackURL values whose origin is listed here. */
+function originOf(url: string): string | undefined {
+  const t = url.trim();
+  if (!t) return undefined;
+  try {
+    return new URL(t).origin;
+  } catch {
+    return undefined;
+  }
+}
+
+const trustedOrigins = Array.from(
+  new Set(
+    [
+      "http://localhost:3000",
+      "https://medistore-iota.vercel.app",
+      originOf(env.FRONTEND_URL),
+      originOf(env.APP_URL),
+      process.env.PROD_APP_URL ? originOf(process.env.PROD_APP_URL) : undefined,
+      originOf(env.BACKEND_URL),
+      originOf(env.BETTER_AUTH_URL),
+      process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL.replace(/\/$/, "")}`
+        : undefined,
+    ].filter((x): x is string => Boolean(x))
+  )
+);
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -66,8 +87,8 @@ export const auth = betterAuth({
 
   emailAndPassword: {
     enabled: true,
-    autoSignIn: true,
-    requireEmailVerification: false,
+    autoSignIn: !smtpConfigured,
+    requireEmailVerification: smtpConfigured,
     sendResetPassword: async ({ user, url }) => {
       if (!mailTransport) {
         console.warn("[Better Auth] sendResetPassword: SMTP not configured");
@@ -94,6 +115,7 @@ export const auth = betterAuth({
     : {}),
 
   emailVerification: {
+    sendOnSignUp: smtpConfigured,
     sendOnSignIn: false,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url }) => {
@@ -104,7 +126,7 @@ export const auth = betterAuth({
       await sendEmail(
         user.email,
         "Verify your MediStore email",
-        `<p>Hi ${user.name},</p><p><a href="${url}">Verify your email address</a></p>`
+        `<p>Hi ${user.name},</p><p>Please verify your email before signing in.</p><p><a href="${url}" style="display:inline-block;margin-top:12px;padding:10px 16px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Verify my email</a></p><p style="margin-top:16px;font-size:13px;color:#64748b;">If you did not create an account, you can ignore this message.</p>`
       );
     },
   },

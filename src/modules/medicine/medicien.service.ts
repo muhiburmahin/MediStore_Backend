@@ -1,7 +1,8 @@
-import { medicine, Prisma } from "../../generated/prisma/client";
+import { medicine, Prisma } from "@prisma/client";
 import { paginationHelpers, IOptions } from "../../helpers/paginationHelper";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
+import { notificationService } from "../notification/notification.service";
 
 
 const createMedicine = async (payload: medicine): Promise<medicine> => {
@@ -24,7 +25,7 @@ const createMedicine = async (payload: medicine): Promise<medicine> => {
     if (!isSellerExist) throw new AppError("Seller account not found.", 404);
     if (!isCategoryExist) throw new AppError("Invalid category selected.", 404);
 
-    return await prisma.medicine.create({
+    const created = await prisma.medicine.create({
         data: {
             name,
             description,
@@ -42,13 +43,39 @@ const createMedicine = async (payload: medicine): Promise<medicine> => {
             seller: { select: { id: true, name: true, email: true } }
         }
     });
+
+    void notificationService
+        .create(
+            sellerId,
+            "Medicine listed",
+            `"${created.name}" is now live in your shop (${created.stock} in stock, ৳${Number(created.price).toFixed(2)}).`,
+            "MEDICINE"
+        )
+        .catch(() => undefined);
+
+    return created;
 };
 
-const getAllMedicines = async (
-    filters: { search?: string; categoryId?: string; sellerId?: string; category?: string },
-    options: IOptions
-) => {
-    const { search, categoryId, sellerId, category } = filters;
+type MedicineListFilters = {
+    search?: string;
+    categoryId?: string;
+    sellerId?: string;
+    category?: string;
+};
+
+const queryScalar = (v: unknown): string | undefined => {
+    if (v === undefined || v === null) return undefined;
+    if (Array.isArray(v)) return v.length ? String(v[0]) : undefined;
+    return String(v);
+};
+
+const MEDICINE_SORT_FIELDS = new Set(["createdAt", "price", "name", "stock", "manufacturer"]);
+
+const getAllMedicines = async (filters: MedicineListFilters, options: IOptions) => {
+    const search = queryScalar(filters.search);
+    const categoryId = queryScalar(filters.categoryId);
+    const sellerId = queryScalar(filters.sellerId);
+    const category = queryScalar(filters.category);
     const { page, limit, skip, sortBy, sortOrder } = paginationHelpers.calculatePagination(options);
 
     const andConditions: Prisma.medicineWhereInput[] = [];
@@ -85,13 +112,14 @@ const getAllMedicines = async (
         ? { AND: andConditions }
         : {};
 
+    const sortField = MEDICINE_SORT_FIELDS.has(sortBy) ? sortBy : "createdAt";
+    const orderBy = { [sortField]: sortOrder } as Prisma.medicineOrderByWithRelationInput;
+
     const result = await prisma.medicine.findMany({
         where: whereConditions,
         take: limit,
         skip: skip,
-        orderBy: sortBy && sortOrder
-            ? { [sortBy]: sortOrder }
-            : { createdAt: 'desc' },
+        orderBy,
         include: {
             category: { select: { id: true, name: true } },
             seller: { select: { id: true, name: true, email: true } },

@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
@@ -23,6 +23,11 @@ export const prisma =
       process.env.NODE_ENV === "production"
         ? ["error", "warn"]
         : ["query", "error", "warn"],
+    /** Better Auth adapter uses interactive transactions; email + sign-up can exceed 5s locally. */
+    transactionOptions: {
+      maxWait: 15_000,
+      timeout: 25_000,
+    },
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

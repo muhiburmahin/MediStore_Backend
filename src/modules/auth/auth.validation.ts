@@ -3,9 +3,9 @@ import { isAllowedMailboxEmail } from "../../shared/emailPolicy";
 
 const mailboxEmail = z
   .string()
-  .email("Invalid email address")
+  .email("Your email is not correct.")
   .refine((e) => isAllowedMailboxEmail(e), {
-    message: "Use a real email provider (temporary or disposable addresses are not allowed)",
+    message: "Your email is not correct.",
   });
 
 const registerValidationSchema = z.object({

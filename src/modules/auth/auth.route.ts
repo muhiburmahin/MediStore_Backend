@@ -3,7 +3,7 @@ import { AuthController } from "./auth.controller";
 import authMiddleware from "../../middleware/auth";
 import validateRequest from "../../middleware/validateRequest";
 import { AuthValidation } from "./auth.validation";
-import { Role } from "../../generated/prisma/client";
+import { Role } from "@prisma/client";
 
 const router = express.Router();
 
@@ -50,16 +50,10 @@ router.post(
 
 router.post("/logout", validateRequest(AuthValidation.refreshTokenValidation), AuthController.logoutUser);
 
-router.get(
-  "/login/google",
-  validateRequest(AuthValidation.googleLoginQueryValidation),
-  AuthController.googleLogin
-);
-router.get("/google/success", validateRequest(AuthValidation.googleSuccessQueryValidation), AuthController.googleLoginSuccess);
-router.get(
-  "/oauth/error",
-  validateRequest(AuthValidation.oauthErrorQueryValidation),
-  AuthController.handleOAuthError
-);
+// GET query validation must not assign to req.query (Express 5: query is getter-only).
+router.get("/login/google", AuthController.googleLogin);
+router.get("/google/success", AuthController.googleLoginSuccess);
+router.get("/callback/google", AuthController.googleLoginSuccess);
+router.get("/oauth/error", AuthController.handleOAuthError);
 
 export const AuthRoutes = router;

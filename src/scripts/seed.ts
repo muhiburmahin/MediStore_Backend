@@ -2,7 +2,7 @@ import "dotenv/config";
 import { randomUUID } from "node:crypto";
 import { hashPassword } from "better-auth/crypto";
 import { prisma } from "../lib/prisma";
-import { Role, UserStatus } from "../generated/prisma/client";
+import { Role, UserStatus } from "@prisma/client";
 
 type SeedUser = {
   email: string;
@@ -89,14 +89,14 @@ async function main() {
   });
 
   await upsertCredentialUser({
-    email: (process.env.DEMO_SELLER_EMAIL ?? "demo.seller@medistore.com").trim().toLowerCase(),
+    email: (process.env.DEMO_SELLER_EMAIL ?? "mdmahincse@gmail.com").trim().toLowerCase(),
     password: process.env.DEMO_SELLER_PASSWORD ?? "pass1234a",
     name: process.env.DEMO_SELLER_NAME ?? "Demo Seller",
     role: Role.SELLER,
   });
 
   await upsertCredentialUser({
-    email: (process.env.DEMO_CUSTOMER_EMAIL ?? "demo.customer@medistore.com").trim().toLowerCase(),
+    email: (process.env.DEMO_CUSTOMER_EMAIL ?? "muhiburmahin.edu@gmail.com").trim().toLowerCase(),
     password: process.env.DEMO_CUSTOMER_PASSWORD ?? "pass1234a",
     name: process.env.DEMO_CUSTOMER_NAME ?? "Demo Customer",
     role: Role.CUSTOMER,

@@ -2,7 +2,10 @@
   "name": "medistore_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "engines": {
+    "node": "20.x"
+  },
+  "main": "dist/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
@@ -10,9 +13,10 @@
     "db:seed": "prisma db seed",
     "db:deploy": "prisma migrate deploy && prisma db seed",
     "check": "tsc --noEmit && eslint .",
-    "build": "prisma generate && tsup src/index.ts --format esm --platform node --target node20 --outDir api --external pg-native",
+    "build": "tsup",
+    "rebuild": "prisma generate && tsup",
     "postinstall": "prisma generate",
-    "start": "node api/index.js"
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

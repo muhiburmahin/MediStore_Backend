@@ -2,7 +2,7 @@
   "compilerOptions": {
     // File Layout
     "rootDir": "./",         
-    "outDir": "./api",
+    "outDir": "./dist",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "target": "ES2023",
@@ -29,6 +29,6 @@
     "esModuleInterop": true,
     //"ignoreDeprecations": "6.0"
   },
-    "include": ["src/**/*", "generated/**/*"],
+    "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "generated/prisma"]
 }

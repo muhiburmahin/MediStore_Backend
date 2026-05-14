@@ -2,6 +2,7 @@ import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
 import { stripeClient } from "../../lib/stripe";
 import { env } from "../../config/env";
+import { notificationService } from "../notification/notification.service";
 
 type CreateOrderInput = {
   items: { medicineId: string; quantity: number }[];
@@ -9,6 +10,55 @@ type CreateOrderInput = {
   phone?: string;
   paymentMethod: "STRIPE" | "COD";
 };
+
+function notifyOrderPlaced(
+  customerId: string,
+  order: { id: string; totalAmount: number; paymentMethod: string; paymentStatus: string },
+  checkoutUrl: string | null
+) {
+  const paymentLine =
+    order.paymentMethod === "COD"
+      ? "Pay with cash when your order is delivered."
+      : checkoutUrl
+        ? "Open your Stripe checkout link to pay online."
+        : "Complete payment when you are ready.";
+  void notificationService
+    .create(
+      customerId,
+      "Order placed",
+      `Order ${order.id.slice(0, 8)}… — ${order.totalAmount.toFixed(2)} BDT. ${paymentLine} Payment status: ${order.paymentStatus}.`,
+      "ORDER"
+    )
+    .catch(() => undefined);
+}
+
+/** One notification per seller whose products appear in the order. */
+function notifySellersNewOrder(
+  order: {
+    id: string;
+    items: { quantity: number; price: number; medicine: { sellerId: string; name: string } }[];
+  }
+) {
+  const bySeller = new Map<string, { subtotal: number; lineCount: number }>();
+  for (const it of order.items) {
+    const sid = it.medicine.sellerId;
+    const cur = bySeller.get(sid) ?? { subtotal: 0, lineCount: 0 };
+    cur.subtotal += it.price * it.quantity;
+    cur.lineCount += 1;
+    bySeller.set(sid, cur);
+  }
+  const short = order.id.slice(0, 8);
+  for (const [sellerId, agg] of bySeller) {
+    void notificationService
+      .create(
+        sellerId,
+        "New order",
+        `Order #${short}… includes ${agg.lineCount} line(s) of your products (your share: ৳${agg.subtotal.toFixed(2)}). Check Seller → Orders to process.`,
+        "ORDER"
+      )
+      .catch(() => undefined);
+  }
+}
 
 const createOrder = async (customerId: string, payload: CreateOrderInput) => {
   const { items, shippingAddress, phone, paymentMethod } = payload;
@@ -57,6 +107,8 @@ const createOrder = async (customerId: string, payload: CreateOrderInput) => {
   });
 
   if (paymentMethod === "COD") {
+    notifyOrderPlaced(customerId, order, null);
+    notifySellersNewOrder(order);
     return { order, checkoutUrl: null as string | null };
   }
 
@@ -90,6 +142,8 @@ const createOrder = async (customerId: string, payload: CreateOrderInput) => {
     include: { items: { include: { medicine: true } } },
   });
 
+  notifyOrderPlaced(customerId, updated, session.url ?? null);
+  notifySellersNewOrder(updated);
   return { order: updated, checkoutUrl: session.url };
 };
 
@@ -170,10 +224,24 @@ const updateOrderStatus = async (orderId: string, status: string, userId: string
     throw new AppError("You don't have permission to update this order", 403);
   }
 
-  return prisma.order.update({
+  const previousStatus = order.status;
+  const updated = await prisma.order.update({
     where: { id: orderId },
     data: { status: status as never },
   });
+
+  if (status === "DELIVERED" && previousStatus !== "DELIVERED") {
+    void notificationService
+      .create(
+        order.customerId,
+        "Order delivered",
+        `Order #${orderId.slice(0, 8)}… has been marked as delivered. Thank you for shopping with MediStore!`,
+        "ORDER"
+      )
+      .catch(() => undefined);
+  }
+
+  return updated;
 };
 
 const deleteOrderById = async (id: string) => {

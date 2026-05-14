@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
+import { notificationService } from "../notification/notification.service";
 
 const listForUser = async (userId: string) => {
   return prisma.wishlist.findMany({
@@ -17,10 +18,14 @@ const add = async (userId: string, medicineId: string) => {
   const med = await prisma.medicine.findUnique({ where: { id: medicineId } });
   if (!med) throw new AppError("Medicine not found", 404);
   try {
-    return await prisma.wishlist.create({
+    const row = await prisma.wishlist.create({
       data: { userId, medicineId },
       include: { medicine: true },
     });
+    void notificationService
+      .create(userId, "Wishlist", `${med.name} was added to your wishlist.`, "WISHLIST")
+      .catch(() => undefined);
+    return row;
   } catch {
     throw new AppError("Item is already in your wishlist", 409);
   }
@@ -53,6 +58,9 @@ const toggle = async (userId: string, medicineId: string) => {
     return { inWishlist: false };
   }
   await prisma.wishlist.create({ data: { userId, medicineId } });
+  void notificationService
+    .create(userId, "Wishlist", `${med.name} was added to your wishlist.`, "WISHLIST")
+    .catch(() => undefined);
   return { inWishlist: true };
 };
 

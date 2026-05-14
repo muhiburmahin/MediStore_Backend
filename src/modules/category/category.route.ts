@@ -1,7 +1,7 @@
 import express from "express";
 import { categoryController } from "./category.controller";
 import auth from "../../middleware/auth";
-import { Role } from "../../generated/prisma/client";
+import { Role } from "@prisma/client";
 import validateRequest from "../../middleware/validateRequest";
 import {
   createCategoryValidation,

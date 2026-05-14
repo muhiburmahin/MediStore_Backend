@@ -1,6 +1,6 @@
 import express from "express";
 import auth from "../../middleware/auth";
-import { Role } from "../../generated/prisma/client";
+import { Role } from "@prisma/client";
 import { userController } from "../user/user.controller";
 import { medicineRoute } from "../medicine/medicien.route";
 import { orderRoutes } from "../order/order.route";

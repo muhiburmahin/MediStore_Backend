@@ -8,7 +8,7 @@ import { env } from "../../config/env";
 import { tokenUtils, type JwtPayload } from "../../utils/token";
 import { ILoginUserPayload, IRegisterUserPayload } from "./auth.interface";
 import { AppError } from "../../middleware/appError";
-import { Role, UserStatus } from "../../generated/prisma/client";
+import { Role, UserStatus } from "@prisma/client";
 
 async function readBetterAuthJson(webRes: globalThis.Response) {
   const clone = webRes.clone();
@@ -26,6 +26,8 @@ const registerUser = async (req: Request, payload: IRegisterUserPayload) => {
   }
   const role: Role = requestedRole === Role.SELLER || requestedRole === "SELLER" ? Role.SELLER : Role.CUSTOMER;
 
+  const loginAfterVerify = `${env.FRONTEND_URL.replace(/\/$/, "")}/login?verified=1`;
+
   const webRes = (await auth.api.signUpEmail({
     body: {
       name: payload.name,
@@ -33,6 +35,8 @@ const registerUser = async (req: Request, payload: IRegisterUserPayload) => {
       password: payload.password,
       role,
       phone: payload.phone ?? undefined,
+      /** Where Better Auth redirects after the user clicks “verify” in the email */
+      callbackURL: loginAfterVerify,
     },
     headers: fromNodeHeaders(req.headers),
     asResponse: true,
@@ -56,6 +60,14 @@ const loginUser = async (req: Request, payload: ILoginUserPayload) => {
   if (!user) throw new AppError("Invalid email or password", status.UNAUTHORIZED);
   if (user.status === UserStatus.BANNED) {
     throw new AppError("Your account has been suspended", status.FORBIDDEN);
+  }
+
+  const verificationEnforced = Boolean(env.APP_USER && env.APP_PASS);
+  if (verificationEnforced && !user.emailVerified) {
+    throw new AppError(
+      "Please verify your email before signing in. Check your inbox for the verification link.",
+      status.FORBIDDEN
+    );
   }
 
   const webRes = (await auth.api.signInEmail({

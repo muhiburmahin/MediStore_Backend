@@ -1,6 +1,18 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
 
+const create = async (userId: string, title: string, message: string, type: string) => {
+  return prisma.notification.create({
+    data: {
+      userId,
+      title,
+      message,
+      type,
+      isRead: false,
+    },
+  });
+};
+
 const listForUser = async (userId: string, unreadOnly?: boolean) => {
   return prisma.notification.findMany({
     where: {
@@ -30,6 +42,7 @@ const markAllRead = async (userId: string) => {
 };
 
 export const notificationService = {
+  create,
   listForUser,
   markRead,
   markAllRead,
