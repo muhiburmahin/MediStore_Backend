@@ -2,38 +2,46 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { Role, UserStatus } from "../generated/prisma/client";
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
+import { env } from "../config/env";
+import { sendEmail } from "../utils/sendEmail";
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.APP_USER,
-    pass: process.env.APP_PASS,
-  },
-});
+const mailTransport =
+  env.APP_USER && env.APP_PASS
+    ? nodemailer.createTransport({
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: { user: env.APP_USER, pass: env.APP_PASS },
+      })
+    : null;
+
+const trustedOrigins = [
+  "http://localhost:3000",
+  "https://medistore-iota.vercel.app",
+  env.FRONTEND_URL,
+  env.APP_URL,
+  process.env.PROD_APP_URL,
+].filter(Boolean) as string[];
 
 export const auth = betterAuth({
+  secret: env.BETTER_AUTH_SECRET,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
+    transaction: true,
   }),
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
+  baseURL: env.BETTER_AUTH_URL,
+  trustedOrigins,
 
   session: {
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
   advanced: {
     cookiePrefix: "better-auth",
-    useSecureCookies: process.env.NODE_ENV === "production",
+    useSecureCookies: env.NODE_ENV === "production",
     crossSubDomainCookies: { enabled: false },
     disableCSRFCheck: true,
   },
-
-  trustedOrigins: [
-    "http://localhost:3000",
-    "https://medistore-iota.vercel.app"
-  ],
 
   user: {
     additionalFields: {
@@ -51,8 +59,8 @@ export const auth = betterAuth({
       },
       phone: {
         type: "string",
-        required: false
-      }
+        required: false,
+      },
     },
   },
 
@@ -60,40 +68,44 @@ export const auth = betterAuth({
     enabled: true,
     autoSignIn: true,
     requireEmailVerification: false,
-  },
-
-  socialProviders: {
-    google: {
-      prompt: "select_account",
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    sendResetPassword: async ({ user, url }) => {
+      if (!mailTransport) {
+        console.warn("[Better Auth] sendResetPassword: SMTP not configured");
+        return;
+      }
+      await sendEmail(
+        user.email,
+        "Reset your MediStore password",
+        `<p>Hi ${user.name},</p><p><a href="${url}">Click here to reset your password</a></p><p>If you did not request this, you can ignore this email.</p>`
+      );
     },
   },
+
+  ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+    ? {
+        socialProviders: {
+          google: {
+            prompt: "select_account" as const,
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+          },
+        },
+      }
+    : {}),
 
   emailVerification: {
     sendOnSignIn: false,
     autoSignInAfterVerification: true,
-    sendVerificationEmail: async ({ user, url, token }, request) => {
-      try {
-        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
-
-        await transporter.sendMail({
-          from: '"MediStore" <your-email@gmail.com>',
-          to: user.email,
-          subject: "Verify Your Email Address ✔",
-          text: `Please verify your email using this link: ${verificationUrl}`,
-          html: `
-            <div style="font-family: Arial, sans-serif;">
-               <h2>Hello ${user.name}</h2>
-               <p>Please click the button below to verify your email:</p>
-               <a href="${verificationUrl}" style="background: #22c55e; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Verify Email Address</a>
-            </div>
-          `,
-        });
-      } catch (err) {
-        console.error("Email sending failed:", err);
-        throw err;
+    sendVerificationEmail: async ({ user, url }) => {
+      if (!mailTransport) {
+        console.warn("[Better Auth] sendVerificationEmail: SMTP not configured");
+        return;
       }
+      await sendEmail(
+        user.email,
+        "Verify your MediStore email",
+        `<p>Hi ${user.name},</p><p><a href="${url}">Verify your email address</a></p>`
+      );
     },
   },
 });

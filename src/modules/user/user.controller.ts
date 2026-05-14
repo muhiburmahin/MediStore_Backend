@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { userService } from "./user.service";
 import { AppError } from "../../middleware/appError";
-import { User } from "../../../generated/prisma/client";
 
 const getMyProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {

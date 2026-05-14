@@ -42,7 +42,7 @@ const getMedicineReviews = async (medicineId: string) => {
         include: {
             user: { select: { name: true, image: true } }
         },
-        orderBy: { createdat: 'desc' }
+        orderBy: { createdAt: 'desc' }
     });
 };
 
@@ -69,7 +69,7 @@ const getSingleMedicineWithAverageRating = async (id: string) => {
         prisma.review.findMany({
             where: { medicineId: id },
             include: { user: { select: { name: true, image: true } } },
-            orderBy: { createdat: 'desc' },
+            orderBy: { createdAt: 'desc' },
             take: 10
         })
     ]);

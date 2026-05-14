@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { Role } from "../generated/prisma/client";
+import { Role, UserStatus } from "../generated/prisma/client";
 import { auth as betterAuth } from "../lib/auth";
+import { prisma } from "../lib/prisma";
 
 const auth = (...roles: Role[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -16,10 +17,14 @@ const auth = (...roles: Role[]) => {
                 });
             }
 
-            if (!session.user.emailVerified) {
+            const u = await prisma.user.findUnique({
+                where: { id: session.user.id },
+                select: { status: true },
+            });
+            if (u?.status === UserStatus.BANNED) {
                 return res.status(403).json({
                     success: false,
-                    message: "Email verification required"
+                    message: "Your account has been suspended",
                 });
             }
 

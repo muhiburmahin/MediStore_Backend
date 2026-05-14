@@ -1,4 +1,4 @@
-import { medicine, Prisma } from "../../../generated/prisma/client";
+import { medicine, Prisma } from "../../generated/prisma/client";
 import { paginationHelpers, IOptions } from "../../helpers/paginationHelper";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../middleware/appError";
@@ -31,9 +31,11 @@ const createMedicine = async (payload: medicine): Promise<medicine> => {
             price: Number(price),
             stock: Number(stock),
             manufacturer,
-            images,
             categoryId,
-            sellerId
+            sellerId,
+            ...(images !== undefined && images !== null
+                ? { images: images as Prisma.InputJsonValue }
+                : {}),
         },
         include: {
             category: true,
@@ -142,7 +144,7 @@ const getMedicineById = async (id: string) => {
                     user: { select: { name: true, image: true } }
                 },
                 orderBy: {
-                    createdat: 'desc'
+                    createdAt: 'desc'
                 }
             },
             _count: {
@@ -191,12 +193,26 @@ const updateMedicineById = async (
         throw new AppError("Unauthorized! You can only update your own products.", 403);
     }
 
-    if (payload.price) payload.price = Number(payload.price);
-    if (payload.stock) payload.stock = Number(payload.stock);
+    const data: Prisma.medicineUpdateInput = {};
+    if (payload.name !== undefined) data.name = payload.name;
+    if (payload.description !== undefined) data.description = payload.description;
+    if (payload.price !== undefined) data.price = Number(payload.price);
+    if (payload.stock !== undefined) data.stock = Number(payload.stock);
+    if (payload.manufacturer !== undefined) data.manufacturer = payload.manufacturer;
+    if (payload.images !== undefined) {
+        data.images = payload.images === null ? Prisma.JsonNull : (payload.images as Prisma.InputJsonValue);
+    }
+    if (payload.categoryId !== undefined) {
+        data.category = { connect: { id: payload.categoryId } };
+    }
+
+    if (Object.keys(data).length === 0) {
+        return medicineRecord;
+    }
 
     return await prisma.medicine.update({
         where: { id },
-        data: payload,
+        data,
     });
 };
 

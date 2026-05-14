@@ -4,9 +4,8 @@ generator client {
 }
 
 datasource db {
-  provider     = "mysql"
-  url          = env("DATABASE_URL")
-  relationMode = "prisma"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model category {
@@ -38,6 +37,7 @@ model medicine {
 
   orderItems orderItem[]
   reviews    review[]
+  wishlists  wishlist[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -52,6 +52,10 @@ model order {
   customerId      String
   customer        User        @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
   status          orderStatus @default(PLACED)
+  paymentStatus   String      @default("PENDING") // PENDING, PAID, FAILED, REFUNDED
+  paymentMethod   String      @default("COD")
+  stripeSessionId String?     @unique
+  trackingNumber  String?     @unique
   shippingAddress String      @db.Text
   phone           String?
   totalAmount     Float
@@ -84,7 +88,7 @@ model review {
   medicine   medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdat  DateTime @default(now())
+  createdAt  DateTime @default(now())
 
   @@unique([userId, medicineId])
   @@index([medicineId])
@@ -99,20 +103,22 @@ enum orderStatus {
 }
 
 model User {
-  id            String     @id
+  id            String         @id
   name          String
-  email         String     @unique
-  emailVerified Boolean    @default(false)
-  image         String?    @db.Text
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  email         String         @unique
+  emailVerified Boolean        @default(false)
+  image         String?        @db.Text
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   sessions      Session[]
   accounts      Account[]
   reviews       review[]
-  orders        order[]    @relation("CustomerOrders")
+  orders        order[]        @relation("CustomerOrders")
   medicines     medicine[]
-  role          Role       @default(CUSTOMER)
-  status        UserStatus @default(ACTIVE)
+  wishlists     wishlist[]
+  notifications notification[]
+  role          Role           @default(CUSTOMER)
+  status        UserStatus     @default(ACTIVE)
   phone         String?
 
   @@map("user")
@@ -160,6 +166,7 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
+  @@unique([providerId, accountId])
   @@index([userId])
   @@map("account")
 }
@@ -174,4 +181,29 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model wishlist {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicine   medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, medicineId])
+  @@index([userId])
+}
+
+model notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  type      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

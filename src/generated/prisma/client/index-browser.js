@@ -143,6 +143,10 @@ exports.Prisma.OrderScalarFieldEnum = {
   id: 'id',
   customerId: 'customerId',
   status: 'status',
+  paymentStatus: 'paymentStatus',
+  paymentMethod: 'paymentMethod',
+  stripeSessionId: 'stripeSessionId',
+  trackingNumber: 'trackingNumber',
   shippingAddress: 'shippingAddress',
   phone: 'phone',
   totalAmount: 'totalAmount',
@@ -165,7 +169,7 @@ exports.Prisma.ReviewScalarFieldEnum = {
   rating: 'rating',
   medicineId: 'medicineId',
   userId: 'userId',
-  createdat: 'createdat'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
@@ -217,6 +221,23 @@ exports.Prisma.VerificationScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.WishlistScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  medicineId: 'medicineId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.NotificationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  title: 'title',
+  message: 'message',
+  isRead: 'isRead',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -227,84 +248,20 @@ exports.Prisma.NullableJsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
-};
-
-exports.Prisma.categoryOrderByRelevanceFieldEnum = {
-  id: 'id',
-  name: 'name',
-  imageUrl: 'imageUrl'
 };
 
 exports.Prisma.JsonNullValueFilter = {
   DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
-};
-
-exports.Prisma.medicineOrderByRelevanceFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  manufacturer: 'manufacturer',
-  categoryId: 'categoryId',
-  sellerId: 'sellerId'
-};
-
-exports.Prisma.orderOrderByRelevanceFieldEnum = {
-  id: 'id',
-  customerId: 'customerId',
-  shippingAddress: 'shippingAddress',
-  phone: 'phone'
-};
-
-exports.Prisma.orderItemOrderByRelevanceFieldEnum = {
-  id: 'id',
-  orderId: 'orderId',
-  medicineId: 'medicineId'
-};
-
-exports.Prisma.reviewOrderByRelevanceFieldEnum = {
-  id: 'id',
-  comment: 'comment',
-  medicineId: 'medicineId',
-  userId: 'userId'
-};
-
-exports.Prisma.UserOrderByRelevanceFieldEnum = {
-  id: 'id',
-  name: 'name',
-  email: 'email',
-  image: 'image',
-  phone: 'phone'
-};
-
-exports.Prisma.SessionOrderByRelevanceFieldEnum = {
-  id: 'id',
-  token: 'token',
-  ipAddress: 'ipAddress',
-  userAgent: 'userAgent',
-  userId: 'userId'
-};
-
-exports.Prisma.AccountOrderByRelevanceFieldEnum = {
-  id: 'id',
-  accountId: 'accountId',
-  providerId: 'providerId',
-  userId: 'userId',
-  accessToken: 'accessToken',
-  refreshToken: 'refreshToken',
-  idToken: 'idToken',
-  scope: 'scope',
-  password: 'password'
-};
-
-exports.Prisma.VerificationOrderByRelevanceFieldEnum = {
-  id: 'id',
-  identifier: 'identifier',
-  value: 'value'
 };
 exports.orderStatus = exports.$Enums.orderStatus = {
   PLACED: 'PLACED',
@@ -334,7 +291,9 @@ exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Verification: 'Verification',
+  wishlist: 'wishlist',
+  notification: 'notification'
 };
 
 /**

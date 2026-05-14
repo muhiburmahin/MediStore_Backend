@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "seed": "tsx src/scripts/seedAdmin.ts",
+    "seed": "tsx src/scripts/seed.ts",
+    "db:seed": "prisma db seed",
+    "db:deploy": "prisma migrate deploy && prisma db seed",
     "check": "tsc --noEmit && eslint .",
     "build": "prisma generate && tsup src/index.ts --format esm --platform node --target node20 --outDir api --external pg-native",
     "postinstall": "prisma generate",
@@ -17,8 +19,10 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.1.0",
     "@types/nodemailer": "^7.0.9",
     "@types/pg": "^8.16.0",
@@ -30,10 +34,18 @@
   "dependencies": {
     "@prisma/client": "^6.3.0",
     "better-auth": "^1.4.18",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "mysql2": "^3.22.2",
-    "nodemailer": "^7.0.13"
+    "http-status": "^2.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^7.0.13",
+    "pg": "^8.13.1",
+    "stripe": "^22.1.1",
+    "zod": "^4.4.3"
+  },
+  "prisma": {
+    "seed": "tsx src/scripts/seed.ts"
   }
 }
